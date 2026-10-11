@@ -332,6 +332,7 @@ func ceiling(piece: String, depth := 2, y := Run.CEILING) -> void:
 ## A glowing strip from `a` to `b` (along one axis), `t` thick.
 func strip(a: Vector3, b: Vector3, t: float, color: Color) -> void:
 	var size := (b - a).abs() + Vector3(t, t, t)
+	color.a = 1.0
 	neon.box((a + b) * 0.5, size, color)
 
 
@@ -393,7 +394,7 @@ func _lane_lines() -> void:
 		return
 	var c: Color = style.lines
 	for z in [RunView.lane_z(0.5), RunView.lane_z(1.5)]:
-		neon.box(Vector3(room.length * 0.5, 0.012, z), Vector3(room.length, 0.012, 0.06), c * 0.55)
+		neon.box(Vector3(room.length * 0.5, 0.012, z), Vector3(room.length, 0.012, 0.06), Kit.dimmed(c, 0.55))
 
 
 ## Now and then a pillar right in front of the camera, dark against the
@@ -410,7 +411,10 @@ func _foreground() -> void:
 ## Things the pattern's tags ask for: a door at the start of a zone, rails
 ## for walkers on the ceiling, frames for shutters, the finish.
 func _tags() -> void:
-	if room.tags.has("entry") and not room.tags.has("window_in"):
+	if room.tags.has("window_in"):
+		# In through the window: no doorway, but the zone's sign on the wall.
+		glow_text(SIGNS.get(room.zone, ""), Vector3(6.7, 6.0, BACK + 0.25), 48, style.accent)
+	elif room.tags.has("entry"):
 		_doorway(1.2, SIGNS.get(room.zone, ""))
 	if room.tags.has("rails"):
 		for lane in 3:
@@ -465,10 +469,6 @@ func _tower_face(out: bool) -> void:
 	for i in 26:
 		var p := Vector3(rng.randf_range(0.5, 12.0), 0.02, rng.randf_range(BACK + 0.3, FRONT - 0.2))
 		glass.box(p, Vector3(rng.randf_range(0.1, 0.4), 0.02, rng.randf_range(0.08, 0.3)), Color(0.75, 0.9, 1.0, 0.5), Basis(Vector3.UP, rng.randf() * TAU))
-	if not out:
-		# Halberd's name down the face of its tower.
-		var l := glow_text("HALBERD", Vector3(x - 0.25, 22.0, -8.0), 220, Color(1.0, 0.12, 0.15), -PI * 0.5)
-		l.rotation.z = -PI * 0.5
 
 
 # --- Test Lab ------------------------------------------------------------------
@@ -503,7 +503,7 @@ func _lab() -> void:
 		elif r < 0.36:
 			# A test pod, lit from inside.
 			walls.put("Prop_Pod_Short", Vector3(x + 0.6, 0.0, PROPS_Z - 0.3), 0.0, 0.62)
-			neon.box(Vector3(x + 0.6, 0.06, PROPS_Z - 0.3), Vector3(0.9, 0.05, 0.9), style.accent * 0.8)
+			neon.box(Vector3(x + 0.6, 0.06, PROPS_Z - 0.3), Vector3(0.9, 0.05, 0.9), Kit.dimmed(style.accent, 0.8))
 			x += 2.4
 		elif r < 0.5:
 			walls.put("ess:Prop_HologramMap1", Vector3(x + 1.0, 0.75, PROPS_Z), 0.0, 0.55)
@@ -630,7 +630,7 @@ static func _racks() -> Array:
 				c.a = r.randf_range(0.05, 0.99) if r.randf() < 0.6 else 1.0
 				lit.box(Vector3(-w * 0.5 + 0.12 + k * 0.07, y + uh * 0.5, 0.52), Vector3(0.035, 0.025, 0.01), c, Basis(), 0b010000)
 			if r.randf() < 0.25:
-				lit.box(Vector3(w * 0.12, y + uh * 0.5, 0.515), Vector3(w * 0.4, 0.012, 0.01), Color(0.2, 0.7, 1.0) * 0.6, Basis(), 0b010000)
+				lit.box(Vector3(w * 0.12, y + uh * 0.5, 0.515), Vector3(w * 0.4, 0.012, 0.01), Color(0.12, 0.42, 0.6), Basis(), 0b010000)
 			y += uh
 		var m := ArrayMesh.new()
 		body.add_to(m, _flat_mat)
@@ -732,7 +732,7 @@ func _atrium() -> void:
 		var pz := -5.0 if i % 2 == 0 else -2.6
 		var py := rng.randf_range(5.6, 6.6)
 		flat.box(Vector3(px, (py + 9.4) * 0.5, pz), Vector3(0.02, 9.4 - py, 0.02), Color(0.1, 0.1, 0.1))
-		neon.box(Vector3(px, py, pz), Vector3(0.36, 0.36, 0.36), style.accent * 1.1)
+		neon.box(Vector3(px, py, pz), Vector3(0.36, 0.36, 0.36), Kit.dimmed(style.accent, 1.1))
 		if i % 2 == 0 and (detail >= 1 or i % 4 == 0):
 			add_light(Vector3(px, py - 0.5, pz + 1.2), style.light if i % 4 == 0 else style.light2, float(style.energy), 10.0)
 	# Planters and plants along the glass.
@@ -752,7 +752,7 @@ func _atrium() -> void:
 	if t > 2:
 		for i in range(1, t, 3):
 			floors.put("Platform_Window_Wide", Vector3(Kit.TILE * (i + 0.5), 0.0, 0.0))
-			neon.box(Vector3(Kit.TILE * (i + 0.5), -6.0, 0.0), Vector3(3.2, 0.05, 3.2), style.accent2 * 0.35)
+			neon.box(Vector3(Kit.TILE * (i + 0.5), -6.0, 0.0), Vector3(3.2, 0.05, 3.2), Kit.dimmed(style.accent2, 0.35))
 
 
 ## A planter with a bushy plant (and sometimes a small tree).

@@ -240,6 +240,13 @@ static func swapped(mesh: Mesh, key: String, swap: Dictionary) -> Mesh:
 	return out
 
 
+## `c` scaled by `k` with its alpha left at 1. Neon reads a vertex colour's
+## alpha below 1 as "blink" (see city_neon.gdshader), and `c * k` would
+## scale the alpha too.
+static func dimmed(c: Color, k: float) -> Color:
+	return Color(c.r * k, c.g * k, c.b * k, 1.0)
+
+
 ## Box sides in the order Shapes.box masks them: +x, -x, +y, -y, +z, -z.
 const DIRS := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
 

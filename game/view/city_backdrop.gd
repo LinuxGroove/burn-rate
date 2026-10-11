@@ -173,11 +173,11 @@ func _tower(shapes: Kit.Shapes, neon: Kit.Shapes, rng: RandomNumberGenerator, ba
 		# A lit band round the crown.
 		neon.box(base + Vector3(0, top - 1.2, 0), Vector3(w + 0.4, 0.9, d + 0.4), nc)
 		if rng.randf() < 0.5:
-			neon.box(base + Vector3(0, top - 4.0, 0), Vector3(w + 0.4, 0.5, d + 0.4), nc * 0.7)
+			neon.box(base + Vector3(0, top - 4.0, 0), Vector3(w + 0.4, 0.5, d + 0.4), Kit.dimmed(nc, 0.7))
 	elif roll < 0.6:
 		# Lit edges up the corners facing the tower.
 		for sx in [-1.0, 1.0]:
-			neon.box(base + Vector3(sx * w * 0.5, top * 0.5, d * 0.5), Vector3(0.6, top, 0.6), nc * 0.8)
+			neon.box(base + Vector3(sx * w * 0.5, top * 0.5, d * 0.5), Vector3(0.6, top, 0.6), Kit.dimmed(nc, 0.8))
 	if rng.randf() < 0.55:
 		var mast := rng.randf_range(8.0, 30.0)
 		shapes.box(base + Vector3(0, top + mast * 0.5, 0), Vector3(0.8, mast, 0.8), Color(0.1, 0.1, 0.12, tint.a))
@@ -209,7 +209,7 @@ static func set_dim(d: float) -> void:
 	tower_mat.set_shader_parameter("lights", 1.15 * d)
 	neon_mat.set_shader_parameter("dim", d)
 	neon_mat.set_shader_parameter("blink", 1.0 if d >= 1.0 else 0.0)
-	sky_mat.set_shader_parameter("dim", lerpf(0.6, 1.0, d))
+	sky_mat.set_shader_parameter("dim", lerpf(0.4, 1.0, d))
 	ground_mat.set_shader_parameter("lights", d)
 	ground_mat.set_shader_parameter("traffic", 1.0 if d >= 1.0 else 0.0)
 	for i in ["", "_1", "_2", "_3", "_4"]:
