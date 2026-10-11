@@ -94,7 +94,8 @@ static func detail() -> int:
 
 
 func _physics_process(_delta: float) -> void:
-	if run == null or paused:
+	# A race with other devices carries on behind the pause menu.
+	if run == null or (paused and not Session.is_networked()):
 		return
 	var inputs := {}
 	for id in seats:
@@ -103,8 +104,8 @@ func _physics_process(_delta: float) -> void:
 		var p := run.pilot(id)
 		if p:
 			inputs[id] = bots[id].think(run, p)
-	if net:
-		net.before_step(inputs)
+	if net and not net.before_step(inputs):
+		return
 	for id in remote_inputs:
 		inputs[id] = remote_inputs[id]
 	run.step(inputs)
