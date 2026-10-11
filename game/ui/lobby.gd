@@ -53,6 +53,7 @@ var _pads := {}
 
 func _ready() -> void:
 	LGInput.filter_claimed_pads = true
+	GameAudio.music("title")
 	var bg := ColorRect.new()
 	bg.color = BG
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

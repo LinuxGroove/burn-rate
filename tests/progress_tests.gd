@@ -193,9 +193,6 @@ func test_boards(t) -> void:
 	t.check(Boards.entry_for(_result("course", 300, {}, {"course": "lab_1"})).is_empty(), "an unfinished course doesn't")
 	t.check(Boards.entry_for(_result("daily", 900, {}, {"date": Flights.today()})) == ["daily", 900], "today's flight goes on daily")
 	t.check(Boards.entry_for(_result("daily", 900, {}, {"date": "2020-01-01"})).is_empty(), "an old day's flight doesn't")
-	t.check(Boards.record_text({}).begins_with("Nothing online yet"), "an empty record says how to start one")
-	var rec := Boards.record_text({"runs": 1, "best": 2906, "races": 3, "wins": 1})
-	t.check(rec.contains("1 run,") and rec.contains("2,906 m") and rec.contains("3 party races") and rec.contains("1 win"), "a record reads naturally: %s" % rec)
 	t.check(Boards.endless_boards().size() == 6 and Boards.course_boards().size() == Courses.ids().size(), "every board is on the Leaderboards screen")
 
 

@@ -130,6 +130,36 @@ static func ui(ui_name: String) -> void:
 		LGAudio.play_sfx(s, float(u[1]), float(u[2]))
 
 
+## Gives every menu its sounds: a move when focus moves under the player's
+## hand, a confirm (or back) when a button is pressed. main.gd calls it once.
+static func hook_menus(tree: SceneTree) -> void:
+	if not tree.node_added.is_connected(_on_node_added):
+		tree.node_added.connect(_on_node_added)
+	var vp := tree.root
+	if not vp.gui_focus_changed.is_connected(_on_focus_changed):
+		vp.gui_focus_changed.connect(_on_focus_changed)
+
+
+static func _on_node_added(node: Node) -> void:
+	if node is BaseButton and not node.pressed.is_connected(_on_button_pressed):
+		node.pressed.connect(_on_button_pressed.bind(node))
+
+
+static func _on_button_pressed(button: BaseButton) -> void:
+	if not is_instance_valid(button):
+		return
+	var text := str(button.get("text")) if "text" in button else ""
+	ui("back" if text in ["Back", "Cancel", "Leave"] else ("toggle" if button.toggle_mode else "confirm"))
+
+
+## Focus set by a screen as it opens is quiet; focus the player moved isn't.
+static func _on_focus_changed(_control: Control) -> void:
+	for a in ["ui_up", "ui_down", "ui_left", "ui_right", "ui_focus_next", "ui_focus_prev"]:
+		if Input.is_action_pressed(a):
+			ui("move")
+			return
+
+
 ## Plays a jingle on the Music bus (see [constant STINGERS]).
 static func stinger(stinger_name: String) -> void:
 	_ensure()

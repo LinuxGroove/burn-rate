@@ -60,10 +60,11 @@ func test_title_pages(t) -> void:
 	await _frames(t, 1)
 	t.check(str(title.button_texts()[0]) == "Fly today's flight", "the Daily Flight page has a way in")
 	t.check("Back" in title.button_texts(), "the Daily Flight page has Back")
-	title.show_party()
-	await _frames(t, 1)
-	for want in ["On this screen", "Local network", "Online", "Back"]:
-		t.check(want in title.button_texts(), "Party offers %s" % want)
+	var party: Button = null
+	for b in title._menu.find_children("", "Button", true, false):
+		if (b as Button).text == "Party":
+			party = b
+	t.check(party != null and party.pressed.get_connections().any(func(c): return c.callable.get_method() == "open_party"), "Party opens the lobby")
 	title.show_settings()
 	await _frames(t, 1)
 	t.check("Back" in title.button_texts(), "Settings has Back")

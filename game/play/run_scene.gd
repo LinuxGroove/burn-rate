@@ -296,7 +296,6 @@ func _finish_run() -> Dictionary:
 	if key != "" and recording and bool(report.get("new_best", false)):
 		recording.distance = float(r.distance)
 		Progress.save_ghost(key, recording)
-	Boards.submit(r)
 	LGPlaytest.moment("run_end", {"mode": run.mode, "distance": r.distance, "credits": r.credits,
 		"best_burn": r.best_burn, "time": snappedf(float(r.time), 0.01), "killed_by": str(r.stats.get("killed_by", "")),
 		"missions": report.get("missions", []).size(), "rank": int(report.get("rank", 0))})
@@ -321,6 +320,10 @@ func _open_results(r: Dictionary) -> void:
 
 ## A round's done: count the win, then the next round, or the race's result.
 func _round_over(r: Dictionary) -> void:
+	if net:
+		# RunNet shows the scoreboard and Session runs the rounds, on one
+		# screen and between devices alike.
+		return
 	var wins: Dictionary = config.get("wins", {}).duplicate()
 	var w := int(r.get("winner", -1))
 	if w >= 0:
@@ -333,11 +336,6 @@ func _round_over(r: Dictionary) -> void:
 			champion = int(id)
 	if hud:
 		hud.show_round(w, wins, int(config.get("round", 1)), champion)
-	if _networked():
-		# The host's Session decides what comes next online and on LAN.
-		if Session.has_method("party_round_over"):
-			Session.call("party_round_over", self, r)
-		return
 	if champion >= 0:
 		await get_tree().create_timer(2.5).timeout
 		if is_inside_tree():
@@ -508,8 +506,10 @@ func restart() -> void:
 func quit_to_title(page := "") -> void:
 	if not _recorded and run and not backdrop and run.mode != "party" and run.time > 3.0:
 		_finish_run()
-	if Session.has_method("leave") and _networked():
-		Session.call("leave")
+	if run and run.mode == "party" and not Session.party.is_empty():
+		# The host takes everyone back to the lobby; a guest leaves the room.
+		Session.quit_race()
+		return
 	TitleScreen.next_page = page
 	LGScenes.change_scene(TitleScreen.SCENE)
 

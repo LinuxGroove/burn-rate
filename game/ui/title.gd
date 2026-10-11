@@ -36,6 +36,7 @@ var page := "main"
 
 func _ready() -> void:
 	LGInput.filter_claimed_pads = false
+	GameAudio.music("title")
 	_backdrop = load("res://game/play/run_scene.tscn").instantiate()
 	_backdrop.config = Flights.backdrop()
 	add_child(_backdrop)
@@ -62,7 +63,7 @@ func _ready() -> void:
 		"daily":
 			show_daily()
 		"party":
-			show_party()
+			open_party.call_deferred()
 		"leaderboards":
 			show_leaderboards()
 		_:
@@ -172,7 +173,7 @@ func show_main() -> void:
 	var daily_best := Progress.daily_best()
 	_menu.add_child(LGUi.button("Daily Flight" + ("  ·  %s" % GameConfig.meters(daily_best) if daily_best > 0 else "  ·  NEW"), show_daily, 420))
 	_menu.add_child(LGUi.button("Courses", show_courses, 420))
-	_menu.add_child(LGUi.button("Party", show_party, 420))
+	_menu.add_child(LGUi.button("Party", open_party, 420))
 	_menu.add_child(LGUi.button("Hangar", show_hangar, 420))
 	_menu.add_child(LGUi.button("Leaderboards", show_leaderboards, 420))
 	var grid := GridContainer.new()
@@ -276,46 +277,13 @@ func _fly_course(id: String) -> void:
 
 # --- Party --------------------------------------------------------------------
 
-func show_party() -> void:
-	_open_page("party")
-	_col.add_child(LGUi.label("Party: Last One Flying", "HeaderMedium"))
-	var info := LGUi.label("Everyone flies the same course and the screen follows the leader. Fall off the left edge and you're out. First to three rounds wins.")
-	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info.custom_minimum_size.x = 600
-	_col.add_child(info)
-	var couch := LGUi.button("On this screen", _party.bind("couch"), 600)
-	couch.theme_type_variation = "HeroButton"
-	_col.add_child(couch)
-	var lan := LGUi.button("Local network", _party.bind("lan"), 600)
-	var online := LGUi.button("Online", _party.bind("online"), 600)
-	_col.add_child(lan)
-	_col.add_child(online)
-	_col.add_child(LGUi.button("Back", show_main, 600))
-	_status = LGUi.label("", "HintLabel")
-	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.custom_minimum_size.x = 600
-	_col.add_child(_status)
-	_watch_network([lan, online], "You're not connected to a network. Connect to Wi-Fi or plug in a network cable to race with others nearby or online.")
-	BurnTheme.focus(couch)
-
-
-## Opens a party lobby: on this screen, the local network or online. The
-## lobby itself is Session's (`open_party_lobby(kind)`); without one, a
-## race on this screen against bots.
-func _party(kind: String) -> void:
-	if kind == "online" and not LGOnline.is_enabled():
-		_status.text = "Online play is off. Turn it on in Settings."
-		return
+## Party races open the lobby's own pages: this screen, the local network,
+## online rooms and quick match.
+func open_party() -> void:
 	if not _claim():
 		return
-	if Session.has_method("open_party_lobby"):
-		Session.call("open_party_lobby", kind)
-		return
-	if kind == "couch":
-		Session.launch(Flights.party_couch([0], 3))
-		return
-	_leaving = false
-	_status.text = "Racing on the network isn't in this build yet."
+	Session.leave()
+	Session.open_lobby()
 
 
 ## Turns `controls` off, with `offline_text` under the page's header, while
@@ -375,6 +343,7 @@ func show_leaderboards(kind := "") -> void:
 		_col.add_child(a)
 		_col.add_child(LGUi.button("Daily Flight", show_leaderboards.bind("daily"), 600))
 		_col.add_child(LGUi.button("Courses", show_leaderboards.bind("courses"), 600))
+		_col.add_child(LGUi.button("Party races", show_leaderboards.bind("party"), 600))
 		_col.add_child(LGUi.button("Back", show_main, 600))
 		_status = LGUi.label("", "HintLabel")
 		_col.add_child(_status)
@@ -390,9 +359,12 @@ func show_leaderboards(kind := "") -> void:
 		"courses":
 			boards = Boards.course_boards()
 			hint = "Fastest times on each course."
+		"party":
+			boards = [["wins", "Party races won"]]
+			hint = "Most Last One Flying races won online."
 	_col.add_child(LGUi.label(hint, "HintLabel"))
 	var panel := LGLeaderboardPanel.new()
-	panel.setup(GameConfig.GAME_ID, Progress.pilot_name(), boards, Boards.record_text)
+	panel.setup(GameConfig.GAME_ID, Progress.pilot_name(), boards, Session.record_text)
 	_col.add_child(panel)
 	var back := LGUi.button("Back", show_leaderboards.bind(""), 600)
 	_col.add_child(back)

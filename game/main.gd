@@ -25,6 +25,7 @@ func _ready() -> void:
 	BurnTheme.apply(get_tree().root, 22)
 	get_window().title = GameConfig.TITLE
 	PlaySettings.apply_flashing()
+	GameAudio.hook_menus(get_tree())
 	var args := OS.get_cmdline_user_args()
 	if "--solo" in args:
 		Session.launch(dev_config(args))

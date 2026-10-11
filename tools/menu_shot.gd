@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots of the menus, the HUD's moments and the results:
 ##   xvfb-run -a godot --path . --rendering-driver opengl3 --resolution 1280x720 tools/menu_shot.tscn -- --page=title --out=/tmp/title.png
-## Pages: title, daily, courses, party, hangar, hangar_suits, hangar_gadgets,
+## Pages: title, daily, courses, hangar, hangar_suits, hangar_gadgets,
 ## settings, about, howto, pause, results, results_course, party_hud, tutorial.
 ## Progress is a made-up pilot (rank 7, some credits and missions), kept in
 ## user://shot_progress.cfg so the real save is untouched.
@@ -66,8 +66,6 @@ func _title_page() -> void:
 			title.show_daily()
 		"courses":
 			title.show_courses()
-		"party":
-			title.show_party()
 		"hangar":
 			title.show_hangar()
 		"hangar_suits", "hangar_gadgets":
