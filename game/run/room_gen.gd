@@ -95,6 +95,7 @@ func zapper(xm: float, y: float, lane: int, length_m: float, angle_deg := 90.0, 
 	var z := Zapper.new()
 	z.id = _id()
 	z.x = x0 + xm
+	z.y = y
 	z.lane = lane if lanes else 1
 	z.half = length_m * 0.5
 	z.angle = deg_to_rad(angle_deg)

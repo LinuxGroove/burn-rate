@@ -8,7 +8,7 @@ const LOOK := 1.5
 const CHARGE := 0.7
 const DASH_SPEED := 20.0
 ## Where it hovers, ahead of the run.
-const AHEAD := 12.5
+const AHEAD := 10.5
 
 var trigger := 0.0
 var t0 := -1.0

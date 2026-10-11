@@ -24,6 +24,9 @@ var _last_zone := ""
 var _last_pattern := ""
 var _zone_offset := 0.0
 var _script: Array = []
+## Speed as if this many metres further on (tools and tests that fly one
+## pattern at a time).
+var speed_from := 0.0
 
 
 func _init(config := {}) -> void:
@@ -31,8 +34,9 @@ func _init(config := {}) -> void:
 	seed = int(config.get("seed", 1))
 	lanes = bool(config.get("lanes", true))
 	pace = str(config.get("pace", "normal"))
+	speed_from = float(config.get("speed_from", 0.0))
 	if mode == "course":
-		def = Courses.get_def(str(config.get("course", "")))
+		def = config.def if config.get("def") is Dictionary else Courses.get_def(str(config.get("course", "")))
 		finish_x = float(def.get("length", 1000.0))
 		seed = int(def.seed)
 	elif mode == "party":
@@ -88,7 +92,7 @@ func next_room() -> RoomGen:
 	var x0 := end_x
 	var zone := zone_at(x0 + 1.0)
 	var d := difficulty_at(x0)
-	var speed := Run.pace_speed(pace, x0)
+	var speed := Run.pace_speed(pace, x0 + speed_from)
 	var r := RoomGen.new(index, zone, x0, d, speed, lanes, hash([seed, index, "room"]))
 	if index == 0:
 		_start_room(r)

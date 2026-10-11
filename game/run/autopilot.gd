@@ -11,7 +11,7 @@ extends RefCounted
 ## fumbles.
 
 const SKILLS := {
-	"novice": {"horizon": 0.55, "react": 0.42, "every": 7, "fumble": 0.12, "greed": 0.4, "burn": 0.0, "view": 10.0},
+	"novice": {"horizon": 0.55, "react": 0.42, "every": 7, "fumble": 0.12, "greed": 0.4, "burn": 0.0, "view": 10.5},
 	"average": {"horizon": 0.85, "react": 0.27, "every": 5, "fumble": 0.04, "greed": 0.8, "burn": 0.3, "view": 11.5},
 	"expert": {"horizon": 1.25, "react": 0.14, "every": 3, "fumble": 0.0, "greed": 1.0, "burn": 0.8, "view": 13.0},
 }
