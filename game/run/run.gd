@@ -125,7 +125,7 @@ func _init(p_config := {}) -> void:
 
 ## The run's speed at distance d, before Burn.
 func speed_at(d: float) -> float:
-	return pace_speed(pace, d)
+	return pace_speed(pace, d + course.speed_from)
 
 
 static func pace_speed(p_pace: String, d: float) -> float:

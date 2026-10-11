@@ -258,22 +258,29 @@ static func skim_alley(r: RoomGen) -> void:
 ## Zappers in all three lanes, each with its gap at a different height.
 static func thread_needle(r: RoomGen) -> void:
 	var count := r.rng.randi_range(2, 3 + int(r.d * 2.0))
-	var space := r.secs(r.by_d(1.3, 0.95))
+	var space := r.secs(r.by_d(1.5, 1.0))
 	r.fit(space * count + 8.0)
 	var x := 7.0
-	var gap := r.by_d(3.3, 2.8)
+	var gap := r.by_d(3.7, 2.9)
+	# The gaps step one lane across from column to column, so you can hold
+	# your height and change lane, or hold your lane and change height.
+	var heights := [1.9, 4.0, 6.0]
+	heights.shuffle()
 	for i in count:
-		var heights := [1.8, 4.0, 6.0]
-		heights.shuffle()
+		if i > 0:
+			if r.rng.randf() < 0.5:
+				heights.push_back(heights.pop_front())
+			else:
+				heights.push_front(heights.pop_back())
 		for l in 3:
-			var mid: float = clampf(float(heights[l]) + r.rng.randf_range(-0.4, 0.4), gap * 0.5 + 0.3, Run.CEILING - gap * 0.5 - 0.3)
+			var mid: float = clampf(float(heights[l]) + r.rng.randf_range(-0.3, 0.3), gap * 0.5 + 0.3, Run.CEILING - gap * 0.5 - 0.3)
 			var lo: float = mid - gap * 0.5
 			var hi: float = mid + gap * 0.5
 			if lo > 0.9:
 				r.zapper_floor(x + l * 0.4, l, lo)
 			if hi < Run.CEILING - 0.9:
 				r.zapper_ceiling(x + l * 0.4, l, hi)
-		r.big(x, 4.0, r.rng.randi_range(0, 2))
+		r.big(x, float(heights[1]), 1)
 		x += space
 
 
