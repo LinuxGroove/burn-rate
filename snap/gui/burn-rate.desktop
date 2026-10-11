@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Race Day
+Comment=Qualify on Saturday. Win on Sunday.
+Exec=race-day
+Icon=${SNAP}/meta/gui/race-day.svg
+Categories=Game;SportsGame;
+Keywords=racing;grand prix;formula;cars;split screen;
+StartupWMClass=Race Day

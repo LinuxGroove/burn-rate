@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://pexjmectfnch"]
+
+[ext_resource type="Shader" uid="uid://bnlq05rp1a367" path="res://addons/quaternius/materials/M_Hologram.tres" id="1_1kl1h"]
+[ext_resource type="Texture2D" uid="uid://b76ijsnki5fqv" path="res://addons/quaternius/materials/Textures/T_Clouds_Streaks.png" id="2_ihbow"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_1kl1h")
+shader_parameter/Location_Pin_Color = Color(1, 0.031373, 0, 1)
+shader_parameter/Hologram_Color = Color(0, 1, 0, 1)
+shader_parameter/Texture_Speed = 0.015
+shader_parameter/Emissive_Intensity = 2.0
+shader_parameter/Texture = ExtResource("2_ihbow")
