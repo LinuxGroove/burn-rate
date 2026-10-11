@@ -54,6 +54,8 @@ func step(run, _dt: float) -> void:
 		t0 = run.time
 	x = pos_at(run.time, run)
 	state = "roll" if roll > 0.0 and t0 >= 0.0 else ("walk" if pace > 0.0 else "idle")
+	# Rolling orbs warn while they're still off the right of the screen.
+	phase = 1.0 if state == "roll" and x > run.trigger_x + 11.0 else 0.0
 	if roll > 0.0 and x < run.trigger_x - 30.0:
 		dead = true
 
@@ -66,6 +68,13 @@ func shapes_at(t: float, run) -> Array:
 	if ceiling:
 		return [Hazard.box(px - hw, Shutter.TOP - size.y, px + hw, Shutter.TOP, float(lane))]
 	return [Hazard.box(px - hw, 0.0, px + hw, size.y, float(lane))]
+
+
+## A rolling orb rumbles in at the right edge before you can see it.
+func warning() -> Dictionary:
+	if roll > 0.0 and t0 >= 0.0 and not dead and state == "roll" and phase > 0.0:
+		return {"kind": "orb", "lane": lane, "y": 0.4, "t": 0.0}
+	return {}
 
 
 func extent() -> Vector2:

@@ -35,3 +35,46 @@ func test_expert_flies_far(t) -> void:
 	for i in t.games:
 		var run := _bot_run({"mode": "endless", "seed": 100 + i}, "expert", 90.0)
 		t.check(run.pilots[0].x > 600.0, "an expert bot flies 600 m (seed %d: %.0f m)" % [100 + i, run.pilots[0].x])
+
+
+## An average bot gets through every pattern early in a run: each pattern
+## repeated over 200 m at the difficulty and speed of the first zones.
+func test_patterns_fair(t) -> void:
+	var seen := {}
+	for zone in Zones.ORDER:
+		for e in Zones.info(zone).patterns:
+			var name := str(e[0])
+			if seen.has(name):
+				continue
+			seen[name] = true
+			var d := maxf(0.25, float(e[2]))
+			for s in 2:
+				var cfg := {"mode": "course", "speed_from": d * 3000.0,
+					"def": {"id": "fair", "name": name, "zone": zone, "length": 200.0, "d0": d, "d1": d, "patterns": [name], "seed": hash([name, s, "fair"])},
+					"pilots": [{"id": 1, "name": "Bot", "bot": true}]}
+				var run := _bot_run(cfg, "average", 60.0)
+				var p := run.pilots[0]
+				t.check(p.alive() and p.x >= run.finish_x, "an average bot gets through %s at difficulty %.2f (seed %d: crashed at %.0f m by %s)" % [name, d, s, p.x, p.stats.get("killed_by", "-")])
+
+
+func test_gadgets(t) -> void:
+	# The Jammer stops the first seekers.
+	var run := Run.new({"mode": "course", "def": {"id": "j", "name": "j", "zone": "lab", "length": 400.0, "d0": 0.5, "d1": 0.5, "patterns": ["seeker_salvo"], "seed": 5},
+		"pilots": [{"id": 1, "name": "Bot", "gadgets": ["jammer", "shield"]}]})
+	var bot := Autopilot.new("expert", 5)
+	var jammed := 0
+	while not run.finished and run.time < 60.0:
+		run.step({1: bot.think(run, run.pilots[0])})
+		for e in run.take_events():
+			if e.type == "jammed":
+				jammed += 1
+	t.check(jammed == Run.JAMS, "the Jammer stops %d seekers (%d)" % [Run.JAMS, jammed])
+	# A shield takes one hit.
+	run = Run.new({"mode": "endless", "seed": 3, "pilots": [{"id": 1, "name": "P", "gadgets": ["shield"]}]})
+	var hits := []
+	while run.time < 60.0 and run.pilots[0].alive():
+		run.step({1: RunInput.NONE})
+		for e in run.take_events():
+			if e.type in ["shield", "crash"]:
+				hits.append(e.type)
+	t.check(hits.size() >= 2 and hits[0] == "shield" and hits[1] == "crash", "a shield takes the first hit and the next one crashes (%s)" % [hits])

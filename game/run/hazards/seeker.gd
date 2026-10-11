@@ -57,7 +57,8 @@ func step(run, _dt: float) -> void:
 		if t_launch < 0.0:
 			t_launch = run.time
 			launch_x = run.trigger_x + START_AHEAD
-			if jammed:
+			if jammed or run.use_jam(id):
+				jammed = true
 				dead = true
 				state = "fizzle"
 				return

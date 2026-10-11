@@ -22,8 +22,8 @@ const INFO := {
 		"vehicles": ["raptor", "eye"],
 		"patterns": [
 			["breather", 1.0, 0.0], ["zap_gates", 3.0, 0.0], ["laser_bank", 4.0, 0.0], ["zap_flat", 2.0, 0.0],
-			["zap_slalom", 2.0, 0.0], ["thread_needle", 2.0, 0.1], ["seeker_salvo", 2.0, 0.1], ["zap_seeker", 1.5, 0.2],
-			["lane_maze", 1.5, 0.2], ["crate_room", 1.0, 0.0], ["zap_bob", 1.5, 0.1],
+			["zap_slalom", 2.0, 0.0], ["thread_needle", 2.0, 0.45], ["seeker_salvo", 2.0, 0.1], ["zap_seeker", 1.5, 0.2],
+			["lane_maze", 1.5, 0.35], ["crate_room", 1.0, 0.0], ["zap_bob", 1.5, 0.1],
 		],
 	},
 	"bay": {

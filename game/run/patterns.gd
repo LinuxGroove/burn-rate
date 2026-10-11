@@ -261,7 +261,7 @@ static func thread_needle(r: RoomGen) -> void:
 	var space := r.secs(r.by_d(1.5, 1.0))
 	r.fit(space * count + 8.0)
 	var x := 7.0
-	var gap := r.by_d(3.7, 2.9)
+	var gap := r.by_d(4.0, 2.9)
 	# The gaps step one lane across from column to column, so you can hold
 	# your height and change lane, or hold your lane and change height.
 	var heights := [1.9, 4.0, 6.0]
@@ -287,7 +287,7 @@ static func thread_needle(r: RoomGen) -> void:
 ## A maze of short zappers: weave between lanes.
 static func lane_maze(r: RoomGen) -> void:
 	var cols := r.rng.randi_range(4, 5 + int(r.d * 3.0))
-	var space := r.secs(r.by_d(0.75, 0.5))
+	var space := r.secs(r.by_d(1.0, 0.55))
 	r.fit(space * cols + 8.0)
 	var x := 7.0
 	var open := r.rng.randi_range(0, 2)
@@ -400,7 +400,7 @@ static func orb_roll(r: RoomGen) -> void:
 	r.fit(space * n + r.secs(2.5))
 	var x := 4.0
 	for i in n:
-		r.orb(x, r.rng.randi_range(0, 2), r.by_d(5.0, 8.0))
+		r.orb(x, r.rng.randi_range(0, 2), r.by_d(3.5, 7.5))
 		x += space
 	r.credit_arc(8.0, 2.0, r.lane_any(), 10, 2.5)
 	if r.d > 0.4:

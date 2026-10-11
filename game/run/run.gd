@@ -40,6 +40,9 @@ const ROCKET_SPEED := 2.6
 const PARTY_EDGE := 10.0
 const PARTY_FRONT := 6.0
 
+## Seekers the Jammer gadget stops in a run.
+const JAMS := 3
+
 ## Credits are picked up this close (metres, and lanes).
 const PICKUP_R := 0.85
 const PICKUP_LANE := 0.6
@@ -114,6 +117,8 @@ func _init(p_config := {}) -> void:
 			p.shield = 1
 		if "reboot" in gadgets:
 			p.reboots = 1
+		if "jammer" in gadgets:
+			p.jams = JAMS
 		if "head_start" in gadgets:
 			p.rocket = HEAD_START
 		p.stats["gadgets"] = gadgets.duplicate()
@@ -169,6 +174,19 @@ func aim_lane() -> int:
 	if mode == "party":
 		return _aim.randi_range(0, LANES - 1)
 	return target().lane_to
+
+
+## A seeker about to launch asks whether the pilot's Jammer stops it.
+func use_jam(seeker_id: int) -> bool:
+	if mode == "party":
+		return false
+	var p := target()
+	if p.jams <= 0 or not p.alive():
+		return false
+	p.jams -= 1
+	p.add_stat("jammed")
+	events.append({"type": "jammed", "pilot": p.id, "hazard": seeker_id})
+	return true
 
 
 func alive_count() -> int:

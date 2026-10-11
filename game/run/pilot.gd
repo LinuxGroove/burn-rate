@@ -55,6 +55,8 @@ var invuln := 0.0
 var shield := 0
 var armour := 0
 var reboots := 0
+## Seekers the Jammer gadget will still stop this run.
+var jams := 0
 ## Head start: metres of rocket left.
 var rocket := 0.0
 

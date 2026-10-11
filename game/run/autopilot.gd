@@ -30,6 +30,8 @@ var plan := [1, 1.4, 0]
 var _ticks := 0
 var _seen := {}
 var _was_fly := false
+## Prints every plan's score (tools).
+var debug := false
 
 
 func _init(p_skill := "average", p_seed := 1) -> void:
@@ -112,6 +114,9 @@ func _choose(run: Run, me: Pilot) -> Array:
 		targets = [0.0]
 	var view_to: float = me.x + float(p.view)
 	var hz := []
+	# Eye drones follow your height until they charge, so where they'll be
+	# depends on the plan: those are scored per plan.
+	var trackers := []
 	for h in run.hazards_between(me.x - 3.0, view_to + 4.0):
 		if h.dead:
 			continue
@@ -122,6 +127,9 @@ func _choose(run: Run, me: Pilot) -> Array:
 		if not _seen.has(h.id):
 			_seen[h.id] = run.time
 		if run.time - float(_seen[h.id]) < float(p.react):
+			continue
+		if h is EyeDrone and (h as EyeDrone).t_dash < 0.0 and (h as EyeDrone).fixed_y < 0.0 and run.mode != "party":
+			trackers.append(h)
 			continue
 		hz.append(h)
 	var credits := []
@@ -142,10 +150,12 @@ func _choose(run: Run, me: Pilot) -> Array:
 		var x := me.x + speed * (i + 1) * Run.DT
 		var shapes := []
 		for h in hz:
-			var e: Vector2 = h.extent()
-			if e.x > x + 2.5 or e.y < x - 2.5:
-				continue
-			shapes.append_array(h.shapes_at(t, run))
+			# Where it will be then, not where it is: drones dash and
+			# seekers fly.
+			for sh in h.shapes_at(t, run):
+				if minf(float(sh[1]), float(sh[3])) - float(sh[5]) > x + 2.5 or maxf(float(sh[1]), float(sh[3])) + float(sh[5]) < x - 2.5:
+					continue
+				shapes.append(sh)
 		samples.append(shapes)
 	var best := plan
 	var best_score := -INF
@@ -162,6 +172,8 @@ func _choose(run: Run, me: Pilot) -> Array:
 	if float(p.fumble) > 0.0 and rng.randf() < float(p.fumble) and scores.size() > 1:
 		scores.sort_custom(func(a, b): return a[0] > b[0])
 		best = scores[1][1]
+	if debug:
+		print("  t%.2f hz %d trackers %d best %s %s" % [run.time, hz.size(), trackers.size(), best, scores.map(func(a): return "%s:%.0f" % [a[1], a[0]])])
 	if _seen.size() > 400:
 		for k in _seen.keys():
 			if run.time - float(_seen[k]) > 20.0:
@@ -171,7 +183,7 @@ func _choose(run: Run, me: Pilot) -> Array:
 
 ## How good a plan looks: fly towards height `target` in lane `lane` for
 ## the horizon.
-func _score(run: Run, me: Pilot, lane: int, target: float, wait: int, samples: Array, credits: Array, speed: float, steps: int) -> float:
+func _score(run: Run, me: Pilot, lane: int, target: float, wait: int, samples: Array, credits: Array, speed: float, steps: int, trackers := []) -> float:
 	var spec := me.spec
 	var y := me.y
 	var vy := me.vy
@@ -227,7 +239,21 @@ func _score(run: Run, me: Pilot, lane: int, target: float, wait: int, samples: A
 		if i % SAMPLE != 0:
 			continue
 		var weight := 1.0 - float(i) / float(steps) * 0.5
-		for s in samples[i / SAMPLE]:
+		var shapes: Array = samples[i / SAMPLE]
+		if not trackers.is_empty():
+			shapes = shapes.duplicate()
+			var t := run.time + (i + 1) * Run.DT
+			for h in trackers:
+				var e := h as EyeDrone
+				var lock_t := e.t0 + EyeDrone.LOOK
+				for sh in e.shapes_at(t, run):
+					var s2: Array = sh.duplicate()
+					# Still looking: it'll be at your height when it locks.
+					var ey := e.y if run.time >= lock_t else (y + 0.6 if t >= lock_t else y + 0.6)
+					s2[2] = ey
+					s2[4] = ey
+					shapes.append(s2)
+		for s in shapes:
 			var c := Hazard.clearance(s, x, y + b0, y + b1, br + pad, ln)
 			var dl := absf(c.y)
 			if dl < lane_pad:
