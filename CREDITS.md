@@ -21,6 +21,19 @@ Made for Burn Rate, all CC0 like the rest:
 - The beams, flames and glows are shaders in `game/view/fx/`.
 - The icon is drawn by `tools/make_icon.py`.
 
+## Fonts
+
+- Kenney Future and Kenney Future Narrow by [Kenney](https://kenney.nl), CC0,
+  from the shared add-on's `addons/linuxgroove/ui/fonts/`.
+
+## Audio
+
+- `assets/audio/sfx/` and `assets/audio/music/`: every sound, ambience and
+  piece of music is synthesized by a script (`tools/sfx/make_sfx.py`), CC0
+  like the rest.
+- `assets/audio/ui/`: menu sounds from [Kenney](https://kenney.nl)'s
+  Interface Sounds, CC0 (see `assets/audio/CREDITS.md`).
+
 ## Code
 
 - [Godot Engine](https://godotengine.org), MIT.
