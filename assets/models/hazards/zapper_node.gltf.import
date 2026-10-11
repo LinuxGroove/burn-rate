@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://6qa4hhh43ol3"
-path="res://.godot/imported/jetpack.gltf-619063763eb8989ed932cb8900e55535.scn"
+uid="uid://vxhto5gytbqj"
+path="res://.godot/imported/zapper_node.gltf-60ebf6cb29708dcbb80ebe0b4a3f0755.scn"
 
 [deps]
 
-source_file="res://assets/models/jetpack/jetpack.gltf"
-dest_files=["res://.godot/imported/jetpack.gltf-619063763eb8989ed932cb8900e55535.scn"]
+source_file="res://assets/models/hazards/zapper_node.gltf"
+dest_files=["res://.godot/imported/zapper_node.gltf-60ebf6cb29708dcbb80ebe0b4a3f0755.scn"]
 
 [params]
 
