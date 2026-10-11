@@ -62,3 +62,10 @@ textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.03, 0.035, 0.06, 1)
 anti_aliasing/quality/msaa_3d=2
 renderer/rendering_method.mobile="mobile"
+
+[shader_globals]
+
+steady={
+"type": "float",
+"value": 0.0
+}
