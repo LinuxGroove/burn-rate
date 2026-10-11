@@ -18,7 +18,7 @@ const PLAYTEST := {
 }
 ## Bump PROTOCOL whenever network messages change; mismatched builds are told
 ## to update instead of desyncing.
-const PROTOCOL := 1
+const PROTOCOL := 2
 ## Pilots in one party race (bots fill the rest).
 const MAX_PLAYERS := 8
 const MIN_PLAYERS := 1
