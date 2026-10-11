@@ -1,6 +1,6 @@
 #!/bin/sh
 # Starts the exported game. Release builds of Godot don't accept --main-pack;
-# they load race-day.pck from beside the binary on their own.
+# they load burn-rate.pck from beside the binary on their own.
 #
 # Saves, settings, logs and play test recordings (Godot's user://) live in
 # the snap's common folder, which isn't copied for every revision. The gnome
@@ -13,4 +13,4 @@ if [ ! -d "$data" ] && [ -d "$SNAP_USER_DATA/.local/share" ]; then
 fi
 mkdir -p "$data"
 export XDG_DATA_HOME="$data"
-exec "$SNAP/game/race-day" "$@"
+exec "$SNAP/game/burn-rate" "$@"

@@ -52,7 +52,7 @@ jobs:
         id: build
       - uses: actions/upload-artifact@v4
         with:
-          name: race-day-snap-${{ matrix.arch }}
+          name: burn-rate-snap-${{ matrix.arch }}
           path: ${{ steps.build.outputs.snap }}
       - name: Publish to the candidate channel
         if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.ref_type == 'tag')

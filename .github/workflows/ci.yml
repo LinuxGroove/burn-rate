@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   test:
-    name: Godot checks, tests and two whole AI races
+    name: Godot checks, tests and whole bot runs
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4

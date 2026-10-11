@@ -1,40 +1,45 @@
-name: race-day
-title: "Race Day"
-adopt-info: race-day
+name: burn-rate
+title: "Burn Rate"
+adopt-info: burn-rate
 base: core24
-summary: Grand prix racing in a bright low-poly world. Qualify, pit, win.
+summary: One button to fly, three lanes to dodge in. Jetpack through a tower.
 description: |
-  Race Day is a grand prix racing game: twenty cars, sixteen circuits and
-  five red lights. Learn the braking points, put it on pole, choose your
-  tyres, make your pit stop count and bring it home.
+  Burn Rate is a jetpack runner through a downtown tower at night. You're
+  the test pilot at Kestrel Lift, the startup on floor 41 that just ran out
+  of money, and the security contractor has come for the prototypes. So
+  you put one on and leave: through the labs, the server halls and the
+  robot bay, out of a window and across the city.
 
-  - Championship and Career: a full season, or several, starting with the
-    slowest team on the grid
-  - Quick Race, Time Trial with ghosts and medals, and the Racing School
-  - Qualifying, tyres, pit stops, DRS, flags, the safety car and penalties
-  - Assists that come off one at a time: the braking line, braking and
-    steering help, ABS, traction control, gears, the pit stop and rewind
-  - Cockpit, T-cam and two chase cameras, with comfort settings: a level
-    horizon and no shake by default
-  - Split screen for two, and races for up to eight over the local network
-    or online, with AI drivers filling the grid
+  - Hold to fly, let go to fall, and flick between three lanes of the
+    building: zappers, lasers, seekers, drones and blast doors
+  - Fly close for Burn: near misses build it up to x5, and it goes faster
+    and pays more the higher it gets
+  - Six prototype jetpacks, each flying its own way, and four robots to
+    ride
+  - Missions and ranks, the Daily Flight, thirty Courses with medals and
+    ghosts, and Classic: one lane and one button
+  - Last One Flying: a party race for 2 to 4 on one screen, and up to
+    eight over the local network or online
+  - A calm camera: no shake, no zoom, with Reduce flashing and Calm
+    background settings
   - Made for controllers and handhelds, fully playable with a keyboard
+    and mouse
 icon: icon.png
 grade: stable
 confinement: strict
 compression: lzo
 license: MIT AND CC0-1.0 AND Apache-2.0
-website: https://github.com/LinuxGroove/race-day
-source-code: https://github.com/LinuxGroove/race-day
-issues: https://github.com/LinuxGroove/race-day/issues
+website: https://github.com/LinuxGroove/burn-rate
+source-code: https://github.com/LinuxGroove/burn-rate
+issues: https://github.com/LinuxGroove/burn-rate/issues
 
 platforms:
   amd64:
   arm64:
 
 apps:
-  race-day:
-    command: bin/race-day
+  burn-rate:
+    command: bin/burn-rate
     extensions: [gnome]
     plugs:
       - audio-playback
@@ -42,7 +47,7 @@ apps:
       - network
 
 parts:
-  race-day:
+  burn-rate:
     plugin: nil
     source: .
     build-packages:
@@ -90,7 +95,7 @@ parts:
       unzip -o -q -j templates.tpz "templates/linux_release.${ARCH}" templates/version.txt -d "$TEMPLATES"
       "$GODOT" --headless --path . --import
       mkdir -p "$CRAFT_PART_INSTALL/game" "$CRAFT_PART_INSTALL/bin"
-      "$GODOT" --headless --path . --export-release "$PRESET" "$CRAFT_PART_INSTALL/game/race-day"
-      test -f "$CRAFT_PART_INSTALL/game/race-day.pck"
-      install -m 755 snap/local/race-day "$CRAFT_PART_INSTALL/bin/"
+      "$GODOT" --headless --path . --export-release "$PRESET" "$CRAFT_PART_INSTALL/game/burn-rate"
+      test -f "$CRAFT_PART_INSTALL/game/burn-rate.pck"
+      install -m 755 snap/local/burn-rate "$CRAFT_PART_INSTALL/bin/"
       cp LICENSE CREDITS.md "$CRAFT_PART_INSTALL/game/"
