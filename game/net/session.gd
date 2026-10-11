@@ -363,7 +363,8 @@ static func run_report_payload(result: Dictionary) -> Dictionary:
 		"mode": str(result.get("mode", "endless")),
 		"pace": str(result.get("pace", "normal")),
 		"lanes": bool(result.get("lanes", true)),
-		"seed": int(result.get("seed", 0)),
+		# JSON numbers only hold 53 bits; the server only uses the seed to spot repeats.
+		"seed": int(result.get("seed", 0)) & 0xFFFFFFFF,
 		"distance": distance,
 		"credits": maxi(0, int(result.get("credits", 0))),
 		"best_burn": clampi(int(result.get("best_burn", 1)), 1, 5),

@@ -6,7 +6,10 @@ extends Node
 ##   XDG_DATA_HOME=/tmp/a godot --headless --path . tools/net_check.tscn -- host /tmp/code [lan]
 ##   XDG_DATA_HOME=/tmp/b godot --headless --path . tools/net_check.tscn -- join /tmp/code [lan]
 ## The host can add "rounds=N" for a race of first to N round wins (default 2,
-## so the second round's restart is played too).
+## so the second round's restart is played too). "server=host:port" plays
+## online through that server over plain http (a local Compose setup is
+## "server=127.0.0.1:7350"); online, the host then checks the server recorded
+## the race for both players.
 ## The guest flies for a moment and the host checks its pilot climbed; both
 ## see the round end with the same winner, with no desyncs on the guest, and
 ## both end up back in the lobby. Each prints "NET OK" and exits 0 when its
@@ -37,6 +40,11 @@ func _ready() -> void:
 	for a in args:
 		if a.begins_with("rounds="):
 			_rounds = maxi(1, int(a.trim_prefix("rounds=")))
+		elif a.begins_with("server="):
+			var at := a.trim_prefix("server=").split(":")
+			LGSettings.set_value("online", "host", at[0], false)
+			LGSettings.set_value("online", "port", int(at[1]) if at.size() > 1 else 7350, false)
+			LGSettings.set_value("online", "scheme", "http", false)
 	LGSettings.register_defaults(GameConfig.SETTING_DEFAULTS)
 	LGInput.register_actions(GameConfig.ACTIONS)
 	LGInput.extend_ui_actions()
@@ -81,6 +89,7 @@ func _host() -> bool:
 			guest_id = p.id
 	if guest_id < 0:
 		return _fail("no guest pilot in the race")
+	var guest_user := "" if _lan else LGOnline.user_id_for_peer(int(_scene().run.pilot(guest_id).id / Session.SEATS_PER_PEER))
 	# The guest lets go at first, then flies: its pilot must climb here.
 	var lowest := 99.0
 	var t := 0.0
@@ -96,7 +105,21 @@ func _host() -> bool:
 		t += 0.1
 	if not climbed:
 		return _fail("the guest's controls never reached the host (lowest %.1f m)" % lowest)
-	return await _round_and_lobby()
+	if not await _round_and_lobby():
+		return false
+	if _lan:
+		return true
+	await get_tree().create_timer(2.0).timeout
+	for user in [LGOnline.session.user_id, guest_user]:
+		var ids := [NakamaStorageObjectId.new("%s.stats" % GameConfig.GAME_ID, "stats", user)]
+		var res = await LGOnline.client.read_storage_objects_async(LGOnline.session, ids)
+		if res.is_exception() or res.objects.is_empty():
+			return _fail("no stats on the server for %s after the race" % user)
+		var stats: Dictionary = JSON.parse_string(res.objects[0].value)
+		print("server stats for the %s: %s" % ["host" if user == LGOnline.session.user_id else "guest", stats])
+		if int(stats.get("races", 0)) < 1:
+			return _fail("the race report wasn't recorded")
+	return true
 
 
 func _join() -> bool:
