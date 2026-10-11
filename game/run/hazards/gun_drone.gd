@@ -39,7 +39,7 @@ func step(run, _dt: float) -> void:
 	phase = clampf((since - (next - 0.4)) / 0.4, 0.0, 1.0)
 	if bolts.size() < shots and since >= next:
 		var to := 0.0 if lane >= 1 else 2.0
-		bolts.append([run.time, run.aim_y() + 0.8 if bolts.size() % 2 == 0 else y, float(lane), to])
+		bolts.append([run.time, run.aim_y(id * 16 + bolts.size()) + 0.8 if bolts.size() % 2 == 0 else y, float(lane), to])
 		state = "attack"
 
 

@@ -264,8 +264,7 @@ static func thread_needle(r: RoomGen) -> void:
 	var gap := r.by_d(4.0, 2.9)
 	# The gaps step one lane across from column to column, so you can hold
 	# your height and change lane, or hold your lane and change height.
-	var heights := [1.9, 4.0, 6.0]
-	heights.shuffle()
+	var heights := r.shuffled([1.9, 4.0, 6.0])
 	for i in count:
 		if i > 0:
 			if r.rng.randf() < 0.5:

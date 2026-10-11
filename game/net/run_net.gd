@@ -164,6 +164,8 @@ func attach(p_run: Run, p_config: Dictionary, p_host: bool, p_networked: bool, p
 	_own.sort_custom(_by_local_seat.bind(local))
 	for i in _own.size():
 		_own[i] = int(_own[i])
+	if not host:
+		run.predict = _own.duplicate()
 
 
 static func _by_seat(a: Dictionary, b: Dictionary) -> bool:
@@ -358,7 +360,7 @@ func _host_after() -> void:
 
 func _send_snapshots(peers: Array) -> void:
 	var packed := NetCodec.pack_pilots(run)
-	var aim: int = run._aim.state
+	var aim: int = run.aim_check()
 	for peer in peers:
 		var slack: int = _slack.get(peer, NO_SLACK)
 		_slack[peer] = NO_SLACK
@@ -450,9 +452,8 @@ func _guest_after() -> void:
 		if p:
 			rec[id] = _pilot_record(p)
 	_hist[t] = rec
-	_bump_own()
 	_cam_hist[t] = run.cam_x
-	_aim_hist[t] = run._aim.state
+	_aim_hist[t] = run.aim_check()
 	_hist.erase(t - HISTORY)
 	_cam_hist.erase(t - HISTORY)
 	_aim_hist.erase(t - HISTORY)
@@ -472,21 +473,6 @@ func _guest_after() -> void:
 			p.vy = lerpf(p.vy, v.y, 0.25)
 		if p.state != Pilot.State.CRASH:
 			p.x = run.cam_x + p.ahead
-
-
-## Pilots in the same lane push each other apart (see Run's party rules,
-## which only the host runs): this device's own pilots feel it at once
-## rather than when the host's word comes back.
-func _bump_own() -> void:
-	for id in _own:
-		var p := run.pilot(id)
-		if p == null or not p.alive():
-			continue
-		for o in run.pilots:
-			if o == p or not o.alive():
-				continue
-			if absf(o.lane - p.lane) < 0.5 and absf(o.x - p.x) < 0.7 and absf(o.y - p.y) < 1.2:
-				p.vy += signf(p.y - o.y) * 2.0 * Run.DT
 
 
 ## A snapshot from the host: where every pilot was at its tick.

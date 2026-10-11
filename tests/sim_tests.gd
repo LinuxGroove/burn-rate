@@ -18,6 +18,27 @@ func test_same_seed_same_run(t) -> void:
 	t.check(is_equal_approx(a.pilots[0].x, b.pilots[0].x) and a.pilots[0].credits == b.pilots[0].credits, "the same seed flies the same way")
 
 
+## Every pattern builds the same from the same seed, whatever ran before: a
+## party race needs every device's rooms to match.
+func test_patterns_seeded(t) -> void:
+	for zone in Zones.ORDER:
+		for e in Zones.info(zone).patterns:
+			var dumps := []
+			for k in 2:
+				seed(k * 7919 + 1)
+				var r := RoomGen.new(5, zone, 100.0, 0.7, 14.0, true, 11)
+				Patterns.make(str(e[0]), r)
+				var d := []
+				for h in r.hazards:
+					d.append([h.id, h.kind, h.lane, snappedf(h.x, 0.001), snappedf(h.y, 0.001)])
+				for c in r.pickups:
+					d.append([c.kind, c.lane, snappedf(c.x, 0.001), snappedf(c.y, 0.001)])
+				for s in r.staff:
+					d.append([s.lane, snappedf(float(s.x), 0.001), s.job])
+				dumps.append(str(d))
+			t.check(dumps[0] == dumps[1], "%s in %s builds only from its seed" % [e[0], zone])
+
+
 func test_every_pattern_builds(t) -> void:
 	for zone in Zones.ORDER:
 		for e in Zones.info(zone).patterns:

@@ -39,8 +39,8 @@ func step(run, _dt: float) -> void:
 			if want_lane >= 0:
 				lane = want_lane
 			else:
-				lane = run.aim_lane()
-			y = run.aim_y() if fixed_y < 0.0 else fixed_y
+				lane = run.aim_lane(id)
+			y = run.aim_y(id) if fixed_y < 0.0 else fixed_y
 			state = "track"
 		return
 	var since: float = run.time - t0
@@ -49,7 +49,7 @@ func step(run, _dt: float) -> void:
 		phase = since / (TRACK + LOCK)
 		if fixed_y < 0.0:
 			# Follows the pilot's height, a little behind.
-			y = move_toward(y, run.aim_y(), 9.0 * run.DT)
+			y = move_toward(y, run.aim_y(id), 9.0 * run.DT)
 	elif since < TRACK + LOCK:
 		state = "lock"
 		phase = since / (TRACK + LOCK)

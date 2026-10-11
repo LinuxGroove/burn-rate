@@ -58,6 +58,9 @@ var course: Course
 ## Whether this copy decides hits, pickups and who's out (host and solo).
 ## A party guest's copy only moves the course and its own pilots.
 var authority := true
+## On a guest: its own pilots, whose party stuns it works out at once rather
+## than a round trip later (the host's word still wins).
+var predict: Array = []
 
 var time := 0.0
 var tick := 0
@@ -81,9 +84,6 @@ var winner := -1
 ## Course mode: where the finish is (INF otherwise).
 var finish_x := INF
 
-var _aim := RandomNumberGenerator.new()
-
-
 func _init(p_config := {}) -> void:
 	config = p_config
 	mode = str(config.get("mode", "endless"))
@@ -92,7 +92,6 @@ func _init(p_config := {}) -> void:
 	if not PACES.has(pace):
 		pace = "normal"
 	lanes_on = bool(config.get("lanes", true))
-	_aim.seed = hash([seed, "aim"])
 	course = Course.new(config)
 	finish_x = course.finish_x
 	cam_x = Course.START_X
@@ -160,20 +159,40 @@ func target() -> Pilot:
 	return best if best else pilots[0]
 
 
-## The height a seeker or drone aims at. Party races use the course's own
-## numbers, so every device works out the same thing.
-func aim_y() -> float:
+## Party races: aims change this often, so a drone's height drifts
+## rather than jitters.
+const AIM_EVERY := 1.2
+
+
+## The height a seeker or drone aims at. Party races have no one pilot to
+## follow, so each hazard (key) picks heights from the seed and the clock:
+## every device works them out the same, whatever else has happened.
+func aim_y(key: int) -> float:
 	if mode == "party":
-		return _aim.randf_range(0.6, TOP - 0.6)
+		return lerpf(0.6, TOP - 0.6, _aim_roll(key, 0))
 	return target().y
 
 
-func aim_lane() -> int:
+func aim_lane(key: int) -> int:
 	if not lanes_on:
 		return 1
 	if mode == "party":
-		return _aim.randi_range(0, LANES - 1)
+		return mini(int(_aim_roll(key, 1) * LANES), LANES - 1)
 	return target().lane_to
+
+
+func _aim_roll(key: int, what: int) -> float:
+	return float(hash([seed, key, what, int(time / AIM_EVERY)]) & 0xffffff) / float(0x1000000)
+
+
+## A check on what every hazard is doing, for party races to compare
+## between devices.
+func aim_check() -> int:
+	var h := 0
+	for z in hazards:
+		if not z.dead:
+			h = hash([h, z.id, z.lane, roundi(z.y * 20.0)])
+	return h
 
 
 ## A seeker about to launch asks whether the pilot's Jammer stops it.
@@ -231,6 +250,10 @@ func step(inputs: Dictionary) -> void:
 		if mode == "party":
 			_party_rules()
 		_check_end()
+	elif mode == "party":
+		for p in pilots:
+			if p.id in predict and p.state == Pilot.State.FLY:
+				_predict_stun(p)
 	_forget_behind()
 
 
@@ -509,6 +532,28 @@ func _touch(p: Pilot) -> void:
 			_award_near(p, h)
 
 
+## A guest's guess at a party stun for its own pilot, as [method _hit]
+## would decide it: no events, no stats, nothing a shield or vehicle changes.
+func _predict_stun(p: Pilot) -> void:
+	if p.invuln > 0.0 or p.vehicle != "" or p.shield > 0 or p.armour > 0:
+		return
+	var b := p.body()
+	for h in hazards:
+		if h.dead:
+			continue
+		var ext: Vector2 = h.extent()
+		if ext.x > p.x + 2.5 or ext.y < p.x - 2.5:
+			continue
+		for sh in h.shapes_at(time, self):
+			var c := Hazard.clearance(sh, p.x, b.x, b.y, b.z, p.lane)
+			if absf(c.y) < Hazard.LANE_HIT and c.x < 0.0:
+				p.near.erase(h.id)
+				p.stun = 1.1
+				p.invuln = 1.8
+				p.vy = minf(p.vy, 0.0)
+				return
+
+
 func _award_near(p: Pilot, h: Hazard) -> void:
 	var rec: Array = p.near[h.id]
 	p.near.erase(h.id)
@@ -692,14 +737,14 @@ func _party_rules() -> void:
 				break
 		p.ahead = minf(p.ahead + drift * DT, PARTY_FRONT)
 		p.x = cam_x + p.ahead
-		# Bumping: pilots in the same lane push apart.
+		# Bumping: pilots in the same lane push apart along the run (only along
+		# it: a guest can't know the others' heights in time to feel a push
+		# up or down).
 		for o in pilots:
 			if o == p or not o.alive():
 				continue
 			if absf(o.lane - p.lane) < 0.5 and absf(o.x - p.x) < 0.7 and absf(o.y - p.y) < 1.2:
-				var push := 0.6 * DT * signf(p.x - o.x if p.x != o.x else float(p.id - o.id))
-				p.ahead += push
-				p.vy += signf(p.y - o.y) * 2.0 * DT
+				p.ahead += 0.6 * DT * signf(p.x - o.x if p.x != o.x else float(p.id - o.id))
 		if p.ahead < -PARTY_EDGE:
 			p.state = Pilot.State.OUT
 			p.out_at = time

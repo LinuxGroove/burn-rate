@@ -82,6 +82,18 @@ func others(l: int) -> Array:
 	return out
 
 
+## A shuffled copy of a list, from the room's seed (Array.shuffle() would
+## use the global one, and differ between devices).
+func shuffled(list: Array) -> Array:
+	var out := list.duplicate()
+	for i in range(out.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var v = out[i]
+		out[i] = out[j]
+		out[j] = v
+	return out
+
+
 func chance(p: float) -> bool:
 	return rng.randf() < p
 

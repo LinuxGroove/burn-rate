@@ -29,7 +29,7 @@ func step(run, _dt: float) -> void:
 		x = trigger + AHEAD
 		if run.trigger_x >= trigger:
 			t0 = run.time
-			y = run.aim_y() + 0.6 if fixed_y < 0.0 else fixed_y
+			y = run.aim_y(id) + 0.6 if fixed_y < 0.0 else fixed_y
 			state = "look"
 		return
 	var since: float = run.time - t0
@@ -40,7 +40,7 @@ func step(run, _dt: float) -> void:
 			state = "look"
 			phase = since / LOOK
 			if fixed_y < 0.0:
-				y = move_toward(y, run.aim_y() + 0.6, 2.6 * run.DT)
+				y = move_toward(y, run.aim_y(id) + 0.6, 2.6 * run.DT)
 		else:
 			state = "charge"
 			phase = (since - LOOK) / CHARGE

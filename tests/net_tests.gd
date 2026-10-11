@@ -256,9 +256,9 @@ func test_party_in_step(t) -> void:
 		t.check(gnet.snapshots > 100, "snapshots arrived %s: %d" % [what, gnet.snapshots])
 		var own: Array = r.own_err
 		t.check(own.size() > 600, "the guest flew its pilot %s" % what)
-		# Controls lost on the way reach the host too late for their tick, and
-		# the host flies that pilot on a guess until the next ones arrive.
-		t.check(_share_over(own, 0.25) < 0.05 + c[1] * 0.015 + c[2] * 1.5, "the guest's own pilot flies as the host's copy does %s: %.1f%% off, mean %.3f m" % [what, _share_over(own, 0.25) * 100.0, _mean(own)])
+		# Controls lost on the way can reach the host too late for their tick,
+		# and the host flies that pilot on a guess until the next ones arrive.
+		t.check(_share_over(own, 0.25) < 0.02 + c[2] * 0.5, "the guest's own pilot flies as the host's copy does %s: %.1f%% off, mean %.3f m" % [what, _share_over(own, 0.25) * 100.0, _mean(own)])
 		t.check(_mean(r.other_err) < 0.25 + c[1] * 0.06 + c[2] * 2.0, "the host's pilot shows near where it is on the guest %s: mean %.2f m" % [what, _mean(r.other_err)])
 		t.check(int(r.lead) >= 0 and int(r.lead) <= c[1] * 2 + RunNet.SLACK_HIGH + 8, "the guest runs a little ahead of the host %s: %d ticks" % [what, r.lead])
 		if host.finished:
