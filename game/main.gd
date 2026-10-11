@@ -13,6 +13,7 @@ extends Node
 ##   --classic               lanes off
 ##   --pace=fast             calm, normal or fast
 ##   --seed=42
+##   --title                 the title, even before the first flight
 
 func _ready() -> void:
 	LGSettings.register_defaults(GameConfig.SETTING_DEFAULTS)
@@ -21,16 +22,18 @@ func _ready() -> void:
 	LGInput.register_actions(GameConfig.ACTIONS, float(LGSettings.get_value("input", "stick_deadzone")))
 	LGInput.extend_ui_actions()
 	LGTheme.apply(get_tree().root, 22)
+	BurnTheme.apply(get_tree().root, 22)
 	get_window().title = GameConfig.TITLE
-	RenderingServer.global_shader_parameter_set("steady", 1.0 if LGSettings.get_value("comfort", "reduce_flashing") else 0.0)
+	PlaySettings.apply_flashing()
 	var args := OS.get_cmdline_user_args()
 	if "--solo" in args:
 		Session.launch(dev_config(args))
 		return
-	if ResourceLoader.exists("res://game/ui/title.tscn"):
-		LGScenes.change_scene("res://game/ui/title.tscn")
-	else:
-		Session.launch(dev_config(args))
+	# The first time, the first flight comes before the title.
+	if not bool(LGSettings.get_value("tutorial", "welcomed", false)) and not "--title" in args:
+		Session.launch(Flights.tutorial())
+		return
+	LGScenes.change_scene(TitleScreen.SCENE)
 
 
 ## A run's config from the developer shortcuts.
