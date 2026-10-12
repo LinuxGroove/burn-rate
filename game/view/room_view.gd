@@ -532,7 +532,7 @@ func _desk(x: float) -> void:
 func _prototype_stand(x: float) -> void:
 	flat.box(Vector3(x, 0.45, PROPS_Z), Vector3(0.7, 0.9, 0.7), Color(0.85, 0.88, 0.92))
 	neon.box(Vector3(x, 0.91, PROPS_Z), Vector3(0.74, 0.03, 0.74), style.accent)
-	walls.put("jetpack", Vector3(x, 1.35, PROPS_Z), 0.4, 1.4)
+	walls.put(PackView.model_name("k%d" % (1 + posmod(int(x / Kit.TILE), 6))), Vector3(x, 1.35, PROPS_Z), 0.4, 1.4)
 
 
 ## Kestrel Lift's lobby: the name on the wall and the prototypes on stands.
