@@ -17,13 +17,15 @@ extends Node3D
 ## Where the pack sits on the spine bone (the mockup's numbers).
 const PACK_OFFSET := Vector3(0.0, -0.2, -0.12)
 const VEHICLES := {"raptor": "ess:Enemy_Raptor", "shell": "ess:Enemy_QuadShell", "eye": "ess:Enemy_EyeDrone", "gunner": "ess:Enemy_GunDrone"}
-## Each vehicle: drawn scale, where the pilot sits on it (height, forward),
-## and its clips on the floor, in the air and when its move fires.
+## Each vehicle: drawn scale, how high its middle hovers (drones), where the
+## pilot sits on it (height above that, forward), and its clips on the
+## floor, in the air and when its move fires. Sized so pilot and vehicle
+## fill the run's hit body for it ([constant Pilot.VEHICLE_BODY]).
 const VEHICLE_FIT := {
-	"raptor": {"scale": 0.95, "seat": Vector2(1.55, -0.25), "floor": "Run", "air": "Hanging", "move": "Attack"},
-	"shell": {"scale": 0.85, "seat": Vector2(1.05, 0.0), "floor": "Run", "air": "Idle", "move": "Charge"},
-	"eye": {"scale": 1.55, "seat": Vector2(1.2, 0.0), "floor": "Look", "air": "Idle", "move": "BackFlip"},
-	"gunner": {"scale": 1.8, "seat": Vector2(1.15, 0.0), "floor": "Idle", "air": "Idle", "move": "Attack"},
+	"raptor": {"scale": 0.8, "hover": 0.0, "seat": Vector2(1.8, -0.2), "floor": "Run", "air": "Hanging", "move": "Attack"},
+	"shell": {"scale": 0.72, "hover": 0.0, "seat": Vector2(0.98, 0.0), "floor": "Run", "air": "Idle", "move": "Charge"},
+	"eye": {"scale": 1.25, "hover": 0.72, "seat": Vector2(0.58, 0.0), "floor": "Look", "air": "Idle", "move": "BackFlip"},
+	"gunner": {"scale": 1.45, "hover": 0.85, "seat": Vector2(0.55, 0.0), "floor": "Idle", "air": "Idle", "move": "Attack"},
 }
 ## The colours of the Burn levels x1 to x5, for near-miss streaks and flares.
 const BURN_COLORS := [Color(1.0, 0.75, 0.3), Color(1.0, 0.6, 0.15), Color(1.0, 0.42, 0.1), Color(1.0, 0.25, 0.35), Color(0.55, 0.65, 1.0)]
@@ -47,6 +49,8 @@ var _vehicle_kind := ""
 var _vehicle_anim: AnimationPlayer
 var _vehicle_move := 0.0
 var _vehicle_in := 1.0
+## Where the pilot sits on the vehicle (zero when flying).
+var _seat := Vector3.ZERO
 var _lean := 0.0
 var _bank := 0.0
 var _spin := 0.0
@@ -258,7 +262,7 @@ func sync(run: Run, dt: float) -> void:
 	_lean = lerpf(_lean, lean_to - _kick * 0.25, 1.0 - exp(-dt * 7.0))
 	_bank = lerpf(_bank, clampf(bank_to, -0.5, 0.5), 1.0 - exp(-dt * 12.0))
 	person.rotation = Vector3(_lean + _spin, PI * 0.5, _bank)
-	person.position.y = bob + _kick * 0.08
+	person.position = _seat + Vector3(0, bob + _kick * 0.08, 0)
 	# The pack.
 	if pack:
 		pack.visible = not riding
@@ -435,7 +439,7 @@ func _sync_vehicle(dt: float) -> void:
 			_vehicle = null
 			_vehicle_anim = null
 		_vehicle_kind = kind
-		person.position = Vector3.ZERO
+		_seat = Vector3.ZERO
 		if kind != "":
 			var fit: Dictionary = VEHICLE_FIT[kind]
 			_vehicle = Kit.model(rig, VEHICLES[kind], Vector3.ZERO, PI * 0.5, float(fit.scale))
@@ -452,6 +456,7 @@ func _sync_vehicle(dt: float) -> void:
 	_flip = lerpf(_flip, flip_to, 1.0 - exp(-dt * 16.0))
 	if _vehicle == null:
 		rig.transform = Transform3D()
+		_seat = Vector3.ZERO
 		return
 	var fit: Dictionary = VEHICLE_FIT[kind]
 	var seat: Vector2 = fit.seat
@@ -460,10 +465,10 @@ func _sync_vehicle(dt: float) -> void:
 	var boing := 1.0 + sin(_vehicle_in * PI) * 0.18 * (1.0 - _vehicle_in)
 	_vehicle.scale = Vector3.ONE * float(fit.scale) * boing
 	_vehicle.position = Vector3.ZERO
-	if kind == "eye" or kind == "gunner":
+	if float(fit.hover) > 0.0:
 		# Drones hover: the body sits off the ground.
-		_vehicle.position.y = 0.55 + sin(_time * 4.0) * 0.05
-	person.position = Vector3(seat.y, seat.x + _vehicle.position.y, 0)
+		_vehicle.position.y = float(fit.hover) + sin(_time * 4.0) * 0.05
+	_seat = Vector3(seat.y, seat.x + _vehicle.position.y, 0)
 	if _vehicle_anim:
 		var clip: String = fit.floor if pilot.on_floor or kind == "shell" else fit.air
 		if _vehicle_move > 0.5 and _vehicle_anim.has_animation(str(fit.move)):

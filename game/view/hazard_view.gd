@@ -17,9 +17,11 @@ const BEAM := preload("res://game/view/fx/beam.gdshader")
 const FLAME := preload("res://game/view/fx/flame.gdshader")
 const RETICLE := preload("res://game/view/fx/reticle.gdshader")
 const RIM := preload("res://game/view/fx/rim.gdshader")
+const STRIPES := preload("res://game/view/fx/stripes.gdshader")
 const COLORS := {
 	"zapper": Color(0.35, 0.8, 1.0),
 	"halo": Color(0.35, 0.8, 1.0),
+	"laser_halo": Color(1.0, 0.15, 0.2),
 	"laser": Color(1.0, 0.15, 0.2),
 	"bolt": Color(0.4, 1.0, 0.45),
 	"seeker": Color(1.0, 0.55, 0.1),
@@ -31,6 +33,8 @@ const ROBOTS := {"eye_drone": "ess:Enemy_EyeDrone", "gun_drone": "ess:Enemy_GunD
 ## Drawn size of each robot: the run's hit box width (walkers) or diameter.
 const ROBOT_SCALE := {"eye_drone": 1.25, "gun_drone": 1.45}
 ## How long each kind's end plays.
+## Laser emitters' drawn size: big enough to hold a beam that thick.
+const EMITTER_SCALE := 1.8
 const END_TIME := {"seeker": 1.4, "laser": 0.5, "eye_drone": 1.6, "gun_drone": 1.6, "walker": 1.8}
 
 static var _beam_mats := {}
@@ -59,6 +63,8 @@ var _anim: AnimationPlayer
 var _clip := ""
 var _door: Node3D
 var _beacons: Array[MeshInstance3D] = []
+## The shutter's edge facing the camera, in hazard stripes.
+var _edge: MeshInstance3D
 var _rocket: Node3D
 var _flame: MeshInstance3D
 var _trail: GPUParticles3D
@@ -121,7 +127,7 @@ func _build() -> void:
 			_build_shutter()
 		"laser":
 			for i in 2:
-				var e := Kit.model(self, "laser_emitter", Vector3.ZERO, 0.0 if i == 0 else PI)
+				var e := Kit.model(self, "laser_emitter", Vector3.ZERO, 0.0 if i == 0 else PI, EMITTER_SCALE)
 				_repaint_glow(e, COLORS.laser)
 				_ends.append(e)
 				var arm := MeshInstance3D.new()
@@ -216,17 +222,19 @@ func sync(run: Run, my_lane: float, me_x := 0.0, dt := 1.0 / 60.0) -> void:
 			_sync_walker(shapes, my_lane, dt)
 
 
-## The left and right edges of the screen (x) at a lane's depth.
+## The left and right edges of the screen (x) at a lane's depth, at the
+## height of the middle of the screen.
 func _screen_edges(run: Run, lane: float) -> Vector2:
 	var vp := get_viewport() if is_inside_tree() else null
 	var cam := vp.get_camera_3d() if vp else null
 	if cam == null:
 		var mid := run.cam_x + 4.5 if run else 0.0
 		return Vector2(mid - 9.0, mid + 9.0)
-	var d := cam.global_position.z - RunView.lane_z(lane)
-	# The camera's fov is vertical; the screen's width is that times its aspect.
-	var half := d * tan(deg_to_rad(cam.fov) * 0.5) * vp.get_visible_rect().size.aspect()
-	return Vector2(cam.global_position.x - half, cam.global_position.x + half)
+	var size := vp.get_visible_rect().size
+	var depth := (cam.global_position.z - RunView.lane_z(lane)) / maxf(cos(cam.global_rotation.x), 0.2)
+	var l := cam.project_position(Vector2(0.0, size.y * 0.5), depth)
+	var r := cam.project_position(Vector2(size.x, size.y * 0.5), depth)
+	return Vector2(l.x, r.x)
 
 
 func _sync_zapper(shapes: Array, my_lane: float) -> void:
@@ -273,7 +281,7 @@ func _sync_laser(run: Run, shapes: Array, my_lane: float, dt: float) -> void:
 	# The emitters slide in from beyond the edges in the first moment.
 	var slide := clampf(since / 0.35, 0.0, 1.0)
 	slide = 1.0 - pow(1.0 - slide, 3.0)
-	var inset := lerpf(-1.4, 0.55, slide)
+	var inset := lerpf(-1.8, 1.6, slide)
 	var xl := _edges.x + inset
 	var xr := _edges.y - inset
 	var y := l.y
@@ -285,7 +293,7 @@ func _sync_laser(run: Run, shapes: Array, my_lane: float, dt: float) -> void:
 	var firing := not shapes.is_empty()
 	if firing:
 		_beam(0, lens_l, lens_r, Laser.RADIUS * 0.8, "laser", dim, 1.0)
-		_beam(1, lens_l, lens_r, Laser.RADIUS * 2.2, "laser", dim, 0.3)
+		_beam(1, lens_l, lens_r, Laser.RADIUS * 1.6, "laser_halo", dim, 0.2)
 		_tick -= dt
 		if _tick <= 0.0 and fx and dim < 0.5:
 			_tick = 0.09
@@ -310,8 +318,8 @@ func _place_emitter(i: int, lens: Vector3, facing: float) -> void:
 	var arm := _arms[i]
 	arm.visible = true
 	var top := Run.CEILING - position.y
-	var from := lens.y + 0.15
-	arm.position = Vector3(lens.x - facing * 0.33, (from + top) * 0.5, lens.z)
+	var from := lens.y + 0.15 * EMITTER_SCALE
+	arm.position = Vector3(lens.x - facing * 0.33 * EMITTER_SCALE, (from + top) * 0.5, lens.z)
 	arm.scale = Vector3(1, maxf(top - from, 0.05), 1)
 
 
@@ -355,6 +363,8 @@ func _sync_shutter(run: Run, my_lane: float) -> void:
 		_mark(0, frame - Vector3(0.6, 0, 0), frame + Vector3(0.6, 0, 0), "shutter", dim)
 	# Warning lights turn while it closes (glow steadily with Reduce flashing).
 	var warn := 1.0 if sh.state == "closing" else (0.4 if sh.state == "shut" else 0.15)
+	_edge.set_instance_shader_parameter("warn", warn)
+	_edge.set_instance_shader_parameter("dim", dim)
 	for i in _beacons.size():
 		var bc := _beacons[i]
 		var pulse := 0.5 + 0.5 * sin(_time * 12.0 + i * PI)
@@ -614,6 +624,16 @@ func _build_shutter() -> void:
 	band.material_override = Kit.flat(Color(0.9, 0.55, 0.05), 0.5, COLORS.shutter, 0.6)
 	band.position = Vector3(0, 0.11, 0)
 	_door.add_child(band)
+	# Side on, the camera sees the door's edge, so that's where the stripes go.
+	_edge = MeshInstance3D.new()
+	var eb := BoxMesh.new()
+	eb.size = Vector3(Shutter.THICK * 2.0 + 0.06, Shutter.TOP, 0.06)
+	_edge.mesh = eb
+	var em := ShaderMaterial.new()
+	em.shader = STRIPES
+	_edge.material_override = em
+	_edge.position = Vector3(0, Shutter.TOP * 0.5, 1.04)
+	_door.add_child(_edge)
 	# Its housing in the ceiling, with two warning lights.
 	var frame := MeshInstance3D.new()
 	var fb := BoxMesh.new()
@@ -680,7 +700,10 @@ func _beam(i: int, a: Vector3, b: Vector3, r: float, kind: String, dim: float, p
 		_beams.append(m)
 	var m := _beams[i]
 	m.visible = true
-	m.material_override = _beam_mat(kind)
+	# Only when it changes: a new material re-allocates the instance uniforms.
+	var mat := _beam_mat(kind)
+	if m.material_override != mat:
+		m.material_override = mat
 	m.set_instance_shader_parameter("dim", dim)
 	m.set_instance_shader_parameter("power", power)
 	m.set_instance_shader_parameter("seed", _seed + i)
@@ -692,7 +715,8 @@ func _beam(i: int, a: Vector3, b: Vector3, r: float, kind: String, dim: float, p
 			_ball.height = 2.0
 			_ball.radial_segments = 16
 			_ball.rings = 8
-		m.mesh = _ball
+		if m.mesh != _ball:
+			m.mesh = _ball
 		m.transform = Transform3D(Basis.from_scale(Vector3.ONE * r), (a + b) * 0.5)
 		return
 	if _cyl == null:
@@ -702,7 +726,8 @@ func _beam(i: int, a: Vector3, b: Vector3, r: float, kind: String, dim: float, p
 		_cyl.height = 1.0
 		_cyl.radial_segments = 12
 		_cyl.rings = 1
-	m.mesh = _cyl
+	if m.mesh != _cyl:
+		m.mesh = _cyl
 	m.transform = _along(a, b, r)
 
 
@@ -742,7 +767,8 @@ func _mark(i: int, a: Vector3, b: Vector3, kind: String, dim: float) -> void:
 		_mark_mesh.orientation = PlaneMesh.FACE_Y
 		_mark_mesh.size = Vector2(1, 1)
 	var m := _marks[i]
-	m.mesh = _mark_mesh
+	if m.mesh != _mark_mesh:
+		m.mesh = _mark_mesh
 	if not _mark_mats.has(kind):
 		var g := Gradient.new()
 		var c: Color = COLORS.get(kind, COLORS.zapper)
@@ -761,7 +787,8 @@ func _mark(i: int, a: Vector3, b: Vector3, kind: String, dim: float) -> void:
 		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		_mark_mats[kind] = mat
-	m.material_override = _mark_mats[kind]
+	if m.material_override != _mark_mats[kind]:
+		m.material_override = _mark_mats[kind]
 	var fa := Vector3(a.x, 0.02 - position.y, a.z)
 	var fb := Vector3(b.x, 0.02 - position.y, b.z)
 	var d := fb - fa
@@ -785,7 +812,7 @@ static func _beam_mat(kind: String) -> ShaderMaterial:
 		var c: Color = COLORS.get(kind, COLORS.zapper)
 		m.set_shader_parameter("color", c)
 		m.set_shader_parameter("crawl", 1.0 if kind == "zapper" else 0.3)
-		if kind == "halo":
+		if kind.ends_with("halo"):
 			m.set_shader_parameter("edge", 0.0)
 			m.set_shader_parameter("crawl", 0.0)
 		m.set_shader_parameter("strength", 2.2 if kind != "laser" else 3.0)

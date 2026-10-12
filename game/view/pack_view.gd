@@ -156,8 +156,18 @@ func _add_flame(at: Node3D, dir: Vector3, p_side: int) -> void:
 	m.material_override = _flame_material()
 	m.set_instance_shader_parameter("seed", float(flames.size()) * 1.7 + randf())
 	add_child(m)
+	# A wider, fainter plume round it, so the flame glows rather than
+	# looking like a rod. Low detail does without.
+	var g: MeshInstance3D = null
+	if detail > 0 and not ghost and p_side == 0:
+		g = MeshInstance3D.new()
+		g.mesh = _cone
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.material_override = m.material_override
+		g.set_instance_shader_parameter("seed", float(flames.size()) * 2.9 + 5.0)
+		add_child(g)
 	var anchor := _model_space(at)
-	flames.append({"node": m, "size": at.scale.x if at.scale.x > 0.01 else 1.0, "dir": dir, "side": p_side, "anchor": anchor})
+	flames.append({"node": m, "glow": g, "size": at.scale.x if at.scale.x > 0.01 else 1.0, "dir": dir, "side": p_side, "anchor": anchor})
 
 
 ## A node's position in this view's space.
@@ -290,6 +300,13 @@ func step(dt: float) -> void:
 		m.transform = Transform3D(b * Basis.from_scale(Vector3(r, len, r)), (f.anchor as Vector3) + d * len * 0.5)
 		m.set_instance_shader_parameter("power", clampf(0.35 + p * 0.75 + _kick * 0.6, 0.0, 1.6))
 		m.set_instance_shader_parameter("heat", heat)
+		var g: MeshInstance3D = f.glow
+		if g:
+			var gl := len * 0.8
+			g.visible = m.visible
+			g.transform = Transform3D(b * Basis.from_scale(Vector3(r * 2.3, gl, r * 2.3)), (f.anchor as Vector3) + d * gl * 0.5)
+			g.set_instance_shader_parameter("power", clampf(0.1 + p * 0.25 + _kick * 0.3, 0.0, 0.7))
+			g.set_instance_shader_parameter("heat", heat * 0.5)
 	if sparks:
 		if is_inside_tree():
 			sparks.global_basis = Fx._basis_up(-TRAIL.normalized())

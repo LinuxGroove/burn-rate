@@ -466,8 +466,9 @@ class Crate extends RefCounted:
 		var bm := ShaderMaterial.new()
 		bm.shader = preload("res://game/view/fx/beam.gdshader")
 		bm.set_shader_parameter("color", Color(1.0, 0.65, 0.15))
-		bm.set_shader_parameter("strength", 0.6)
+		bm.set_shader_parameter("strength", 0.3)
 		bm.set_shader_parameter("crawl", 0.0)
+		bm.set_shader_parameter("edge", 0.0)
 		c.beam.material_override = bm
 		c.beam.position = Vector3(0, 1.3, 0)
 		c.beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
