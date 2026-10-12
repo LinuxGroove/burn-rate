@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://u87cxfo3i04y"]
+
+[ext_resource type="Shader" uid="uid://cuxfv0q84mo7v" path="res://addons/quaternius/materials/M_Base.tres" id="1_u6jwp"]
+[ext_resource type="Texture2D" uid="uid://cjqd8h65xx6tr" path="res://addons/quaternius/materials/Textures/T_Props_Batch2_BaseColor.png" id="2_sn45u"]
+[ext_resource type="Texture2D" uid="uid://bsan4jmlr1bsr" path="res://addons/quaternius/materials/Textures/T_Props_Batch2_Emissive.png" id="3_i80py"]
+[ext_resource type="Texture2D" uid="uid://e533g6jcmkpa" path="res://addons/quaternius/materials/Textures/T_Props_Batch2_Normal.png" id="4_s5yve"]
+[ext_resource type="Texture2D" uid="uid://ub6636wonhx4" path="res://addons/quaternius/materials/Textures/T_Props_Batch2_ORM.png" id="5_bvhxo"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_u6jwp")
+shader_parameter/Emissive_Intensity = 6.0
+shader_parameter/Emissive_Color = Color(0.678357, 0.327, 1e-06, 1)
+shader_parameter/Base_Color = ExtResource("2_sn45u")
+shader_parameter/ORM = ExtResource("5_bvhxo")
+shader_parameter/Emissive_Texture = ExtResource("3_i80py")
+shader_parameter/Normal = ExtResource("4_s5yve")

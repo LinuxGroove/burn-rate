@@ -1,0 +1,326 @@
+{
+ "asset": {
+  "generator": "Khronos glTF Blender I/O v5.2.40",
+  "version": "2.0"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "name": "Scene",
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "mesh": 0,
+   "name": "Goggles"
+  }
+ ],
+ "materials": [
+  {
+   "doubleSided": true,
+   "name": "M_Jet_Strap",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.029999999329447746,
+     0.03200000151991844,
+     0.03500000014901161,
+     1
+    ],
+    "metallicFactor": 0,
+    "roughnessFactor": 0.800000011920929
+   }
+  },
+  {
+   "doubleSided": true,
+   "name": "MI_Trim_03_Dark",
+   "normalTexture": {
+    "index": 0
+   },
+   "pbrMetallicRoughness": {
+    "baseColorTexture": {
+     "index": 1
+    },
+    "metallicRoughnessTexture": {
+     "index": 2
+    }
+   }
+  },
+  {
+   "doubleSided": true,
+   "emissiveFactor": [
+    0.18000001430511503,
+    0.4200000095367429,
+    0.5400000071525568
+   ],
+   "name": "M_Lens",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.20000000298023224,
+     0.5,
+     0.6000000238418579,
+     1
+    ],
+    "metallicFactor": 0.6000000238418579,
+    "roughnessFactor": 0.10000000149011612
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Goggles",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1,
+      "TEXCOORD_0": 2
+     },
+     "indices": 3,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 4,
+      "NORMAL": 5,
+      "TEXCOORD_0": 6
+     },
+     "indices": 7,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 8,
+      "NORMAL": 9,
+      "TEXCOORD_0": 10
+     },
+     "indices": 11,
+     "material": 2
+    }
+   ]
+  }
+ ],
+ "textures": [
+  {
+   "sampler": 0,
+   "source": 0
+  },
+  {
+   "sampler": 0,
+   "source": 1
+  },
+  {
+   "sampler": 0,
+   "source": 2
+  }
+ ],
+ "images": [
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_Normal",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_Normal.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_Cables",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_Cables.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_ORM",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_ORM.png"
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 344,
+   "max": [
+    0.10689997673034668,
+    1.745466947555542,
+    0.10847607254981995
+   ],
+   "min": [
+    -0.10689997673034668,
+    1.6894668340682983,
+    -0.12010294198989868
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 344,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5126,
+   "count": 344,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5123,
+   "count": 960,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 428,
+   "max": [
+    0.060594573616981506,
+    1.7290613651275635,
+    0.1194760724902153
+   ],
+   "min": [
+    -0.060594573616981506,
+    1.6758723258972168,
+    0.09747607260942459
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5126,
+   "count": 428,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 428,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5123,
+   "count": 1548,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5126,
+   "count": 164,
+   "max": [
+    0.054999999701976776,
+    1.7234668731689453,
+    0.12247607856988907
+   ],
+   "min": [
+    -0.054999999701976776,
+    1.681466817855835,
+    0.11847607046365738
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 164,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 164,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5123,
+   "count": 456,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteLength": 4128,
+   "byteOffset": 0,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 4128,
+   "byteOffset": 4128,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 2752,
+   "byteOffset": 8256,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1920,
+   "byteOffset": 11008,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteLength": 5136,
+   "byteOffset": 12928,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 5136,
+   "byteOffset": 18064,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3424,
+   "byteOffset": 23200,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3096,
+   "byteOffset": 26624,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1968,
+   "byteOffset": 29720,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1968,
+   "byteOffset": 31688,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1312,
+   "byteOffset": 33656,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 912,
+   "byteOffset": 34968,
+   "target": 34963
+  }
+ ],
+ "samplers": [
+  {
+   "magFilter": 9729,
+   "minFilter": 9987
+  }
+ ],
+ "buffers": [
+  {
+   "byteLength": 35880,
+   "uri": "goggles_male.bin"
+  }
+ ]
+}

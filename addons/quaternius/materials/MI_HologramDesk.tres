@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dud7oghkrhgj2"]
+
+[ext_resource type="Shader" uid="uid://d204yegfa5sri" path="res://addons/quaternius/materials/M_HologramDesk.tres" id="1_p20iy"]
+[ext_resource type="Texture2D" uid="uid://djsq0etvj0t6m" path="res://addons/quaternius/materials/Textures/T_TablePattern.png" id="2_8g0la"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_p20iy")
+shader_parameter/Small_Grid_Color = Color(0, 1, 1, 1)
+shader_parameter/Grid_Speed = 0.025
+shader_parameter/Big_Grid_Color = Color(0, 0.284428, 0.284428, 1)
+shader_parameter/Big_Grid_Speed = 0.025
+shader_parameter/Table_Texture = ExtResource("2_8g0la")

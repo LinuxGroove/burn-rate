@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Burn Rate
+Comment=One button to fly, three lanes to dodge in.
+Exec=burn-rate
+Icon=${SNAP}/meta/gui/burn-rate.svg
+Categories=Game;ActionGame;ArcadeGame;
+Keywords=jetpack;runner;endless;arcade;party;
+StartupWMClass=Burn Rate

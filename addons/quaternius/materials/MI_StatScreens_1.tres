@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://is4q7benjgls"]
+
+[ext_resource type="Shader" uid="uid://1c0kvkyyabqk" path="res://addons/quaternius/materials/M_StatScreens.tres" id="1_isptj"]
+[ext_resource type="Texture2D" uid="uid://b1vgngqg67gfi" path="res://addons/quaternius/materials/Textures/T_Screens1.png" id="2_t6lrf"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_isptj")
+shader_parameter/Color_A = Color(1, 0, 0, 1)
+shader_parameter/Color_B = Color(0.309804, 0.85098, 0, 1)
+shader_parameter/Base_Color = Color(0.65098, 1, 0.12549, 1)
+shader_parameter/Emissive_Intensity = 4.0
+shader_parameter/Speed = 3.0
+shader_parameter/Background_Opacity = 0.1
+shader_parameter/ScreenTexture = ExtResource("2_t6lrf")

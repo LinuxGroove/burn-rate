@@ -1,0 +1,20 @@
+Thanks for buying the Source version of the Downtown City MegaKit!
+All textures can be found inside the Blends folder.
+
+Versions used for the SOURCE version projects (these and anything above work)
+ Godot_v4.5 | Unity (URP) 2022.3.62f3 | Unreal Engine 4.27.2
+-------------------------------------------------------
+License:
+CC0 1.0 Universal (CC0 1.0) 
+Public Domain Dedication
+https://creativecommons.org/publicdomain/zero/1.0/
+
+------------------------------------------------------
+Models by @Quaternius
+Consider supporting me on Patreon!
+
+https://www.patreon.com/quaternius
+
+-------------------------------------------------------
+Join the Discord Server:
+https://discord.gg/vJqnRUYRfT
