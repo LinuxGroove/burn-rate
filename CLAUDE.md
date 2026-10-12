@@ -21,6 +21,7 @@ XDG_DATA_HOME=/tmp/b godot --headless --path . tools/net_check.tscn -- join /tmp
 godot --headless --path . tools/sound_check.tscn -- --out=/tmp/run.wav --seconds=40   # a bot's run to a WAV, to check the mix
 python3 tools/sfx/make_sfx.py                                       # the synthesized sounds and music in assets/audio
 python3 tools/make_icon.py                                          # the icon: icon.svg, the snap's copy and icon.png
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json xvfb-run -a -s "-screen 0 1280x720x24" godot --path . --resolution 1280x720 tools/screenshot.tscn -- --all=docs/screenshots [group=zones]   # every zone, door, party race and low detail
 ```
 
 Run the script check and the tests before every commit, and `sim_check` with the novice and average bots after changing patterns, zones, speeds or the autopilot. A new `class_name` needs an `--import` before the script check finds it. Headless runs reimport assets and rewrite many `*.import` files and `icon.png.import`; revert those (`git checkout -- '*.import'`, `rm icon.png.import`) unless you meant to change them.
@@ -31,7 +32,7 @@ Run the script check and the tests before every commit, and `sim_check` with the
 |---|---|
 | `game/game_config.gd` | `GAME_ID`, `PROTOCOL`, player limits, `QUICK_MATCH_SIZE`, setting defaults (pace, lanes, comfort, detail), input map |
 | `game/run/` | The run with no nodes: `Run`, `Pilot`, `RunInput`, `RoomGen`, `Patterns` (what goes in a room), `Zones`, hazards, pick-ups, `Packs` (the six jetpacks), `Course`/`Courses`, `Autopilot` |
-| `game/view/` | `RunView` (draws a `Run`), `RoomView`, `HazardView`, `PilotView`, `RunCamera`, `Look` (sky, light, the city), `Kit` (models by name), `fx/` shaders |
+| `game/view/` | `RunView` (draws a `Run`), `RoomView` (each zone's rooms), `CityRoofs`, `CityBackdrop` (the city at night), `HazardView`, `PilotView`, `RunCamera`, `Look` (each zone's light and mood), `Kit` (models by name, batching), `fx/` shaders |
 | `game/people/` | `Person`: Universal Base Characters with hair, outfits drawn by a shader, and the animation libraries |
 | `game/play/` | `RunScene` (steps the run with this device's controls and bots, and hands events to the view, HUD and sound), `Flights` (each mode's config, the Daily seed), `Missions`, `Unlocks` (ranks, suits, gadgets), `Ghosts`, `Boards` |
 | `game/ui/` | Title (a bot flies behind it), HUD, pause menu, results, Hangar, course picker, lobby and `PartyBoard`, settings, how to play, `BurnTheme` |
@@ -40,14 +41,14 @@ Run the script check and the tests before every commit, and `sim_check` with the
 | `game/net/run_net.gd` | `RunNet`: party races, with `NetCodec` packing controls and snapshots |
 | `game/net/online_server.gd` | Default game server; `SERVER_KEY` stays `defaultkey` in git |
 | `game/progress.gd` | `Progress` autoload: credits, packs and upgrades, missions, bests, the Daily Flight and Courses (user://progress.cfg) |
-| `addons/quaternius/` | Quaternius' Modular Sci-Fi MegaKit, Sci-Fi Essentials Kit and Downtown City MegaKit (CC0), from LinuxGroove/quaternius-assets |
+| `addons/quaternius/` | Quaternius' Modular Sci-Fi MegaKit, Sci-Fi Essentials Kit and the pieces of the Downtown City MegaKit the game uses (CC0), from LinuxGroove/quaternius-assets (`tools/vendor_downtowncity.py`) |
 | `addons/linuxgroove/` | Shared LinuxGroove add-on (settings, input and seats, theme, LAN, online, names, play tests) |
 | `addons/com.heroiclabs.nakama/` | Vendored Nakama client with a local patch (see its `VENDORED.md`) |
 | `assets/people/` | The base characters, their hair and the animation libraries |
 | `assets/models/` | Models made for the game (the jetpack, from `tools/jetpack.py`) |
 | `assets/audio/` | Sounds and music synthesized by `tools/sfx/make_sfx.py`, and Kenney's menu sounds (its `CREDITS.md`) |
 | `tests/` | `run_tests.gd` runs every `*_tests.gd` here; each `test_*` method gets the runner as `t` and calls `t.check(ok, "what")` |
-| `tools/` | Script checker, `sim_check` and `gauntlet` (bot balance), `shot` and `menu_shot` (screenshots), `net_check` (two copies race), `sound_check`, `sfx/` (the synthesizer), `probe_models.gd`, the icon, `version.sh`, `release.sh` |
+| `tools/` | Script checker, `sim_check` and `gauntlet` (bot balance), `screenshot`, `shot` and `menu_shot` (screenshots), `net_check` (two copies race), `sound_check`, `sfx/` (the synthesizer), `probe_models.gd`, the icon, `version.sh`, `release.sh` |
 
 ## How the game is built
 
@@ -58,7 +59,8 @@ Run the script check and the tests before every commit, and `sim_check` with the
 - **Burn.** Near misses and credits raise Burn up to x5 (`Pilot.BURN_STEPS`), which adds speed and multiplies credits; a hit, or running along the floor for longer than `Pilot.FLOOR_GRACE`, drops it. A hit with a shield or on a vehicle costs that instead of the run.
 - **Pilots and jetpacks.** `PilotView` puts a `Person` in a flight suit with the jetpack on the `spine_03` bone. The pack is placed in the skeleton's rest space; keep the skeleton's own transform in that maths when changing it. Each prototype in `Packs` paints the pack's trim and flame.
 - **Comfort.** Reduce flashing sets the `steady` shader global, so zappers and lasers glow steadily; Calm background dims the city and the far wall. Never add camera shake, zoom or roll.
-- **Detail.** Handhelds run the Mobile renderer at low detail (`RunScene.detail()` is 0): fewer lights, no far city, simpler effects. Check both after changing how something looks.
+- **Detail.** Handhelds run the Mobile renderer at low detail (`RunScene.detail()` is 0): no SSR or SSAO, fewer lights, a smaller city and simpler effects. Check both after changing how something looks.
+- **The city outside** (`CityBackdrop`) is a sky, streets with traffic, three rows of far towers with shader windows and a row of the Downtown City MegaKit's buildings, moving at half the camera's speed with no shadows. It's built to fit inside `RunCamera.far` (400 m). `RoomView.prewarm()` builds a sample of every zone when a run starts, so no room costs a frame later; keep room builds to a few milliseconds.
 - **Host-authoritative races.** In party races over LAN and online, peer 1 runs the `Run` and its bots and decides hits, pick-ups and who's out; guests send their controls (`_c_inputs`, each tick sent several times) and the host sends snapshots and events (`_h_*`), always with `rpc_id`. Every device builds the course itself from the seed, so anything in `RoomGen` or `Patterns` must draw only from the room's `rng` (never `randf()` or `Array.shuffle()`); `test_patterns_seeded` checks it. A guest runs a few ticks ahead so its own pilot flies exactly as the host's copy, replaying from the host's snapshot when they differ: keep anything that moves a pilot either in its own controls or decided by the host. Couch pilots are seats of their device's peer, with actor id `peer * 4 + seat`.
 - **One Session for every mode.** Solo, couch, LAN, online rooms and quick match all run the same code. Follow the rules in online-addon.md: never attach the bridge's peer yourself, never send a second hello, no `await` between joining and setting `mode`.
 - **Bump `PROTOCOL`** whenever any RPC's arguments or meaning change.
