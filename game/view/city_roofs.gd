@@ -180,7 +180,7 @@ static func _billboard(v: RoomView, x: float, w: float) -> void:
 	v.strip(Vector3(x, y + h, z), Vector3(x + w, y + h, z), 0.08, c)
 	v.strip(Vector3(x, y, z), Vector3(x, y + h, z), 0.08, c)
 	v.strip(Vector3(x + w, y, z), Vector3(x + w, y + h, z), 0.08, c)
-	v.neon.box(Vector3(x + w * 0.5, y + h * 0.5, z - 0.01), Vector3(w - 0.3, h - 0.3, 0.01), Kit.dimmed(c, 0.12))
+	v.neon.box(Vector3(x + w * 0.5, y + h * 0.5, z - 0.01), Vector3(w - 0.3, h - 0.3, 0.01), Kit.dimmed(c, 0.05))
 	v.glow_text(str(ad[0]), Vector3(x + w * 0.5, y + h * 0.62, z + 0.02), int(w * 13.0), c)
 	v.glow_text(str(ad[1]), Vector3(x + w * 0.5, y + h * 0.28, z + 0.02), int(w * 6.5), Color(1, 1, 1) * 0.8)
 	if v.detail >= 1:
