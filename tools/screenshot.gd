@@ -26,6 +26,7 @@ func _ready() -> void:
 	LGSettings.register_defaults(GameConfig.SETTING_DEFAULTS)
 	LGInput.register_actions(GameConfig.ACTIONS, 0.25)
 	LGTheme.apply(get_tree().root, 22)
+	BurnTheme.apply(get_tree().root, 22)
 	# The run is stepped by hand below, outside the physics tick.
 	get_tree().physics_interpolation = false
 	_settings(1, false)
