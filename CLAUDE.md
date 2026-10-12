@@ -48,6 +48,7 @@ Run the script check and the tests before every commit, and `sim_check` with the
 | `assets/models/` | Models made for the game (the jetpack, from `tools/jetpack.py`) |
 | `assets/audio/` | Sounds and music synthesized by `tools/sfx/make_sfx.py`, and Kenney's menu sounds (its `CREDITS.md`) |
 | `tests/` | `run_tests.gd` runs every `*_tests.gd` here; each `test_*` method gets the runner as `t` and calls `t.check(ok, "what")` |
+| `docs/screenshots/<group>/` | Every zone, the doors between them, party races and low detail, with a README index, made by `tools/screenshot.tscn -- --all=docs/screenshots` |
 | `tools/` | Script checker, `sim_check` and `gauntlet` (bot balance), `screenshot`, `shot` and `menu_shot` (screenshots), `net_check` (two copies race), `sound_check`, `sfx/` (the synthesizer), `probe_models.gd`, the icon, `version.sh`, `release.sh` |
 
 ## How the game is built
