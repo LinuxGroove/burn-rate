@@ -214,8 +214,7 @@ func _suit_detail(id: String) -> void:
 			text += " Opens at rank %d." % int(s.get("rank", 0))
 	_detail.add_child(_wrap(BurnTheme.label(text, 21, BurnTheme.TEXT, BurnTheme.narrow(), 3)))
 	var look := Progress.look()
-	look["main"] = s.main
-	look["accent"] = s.accent
+	look["suit"] = id
 	_preview.show_pilot(Progress.pack(), look)
 
 

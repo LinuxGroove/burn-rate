@@ -117,7 +117,7 @@ func test_credits_buy_gadgets_and_suits(t) -> void:
 	t.check(priced != "" and not Progress.suit_open(priced), "some suits are for sale")
 	t.check(Progress.buy_suit(priced) and Progress.suit_open(priced), "credits buy a suit")
 	Progress.set_suit(priced)
-	t.check(Progress.look().accent == Unlocks.suit(priced).accent, "and the pilot wears it")
+	t.check(str(Progress.look().suit) == priced, "and the pilot wears it")
 
 
 func test_bests(t) -> void:

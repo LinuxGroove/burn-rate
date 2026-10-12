@@ -472,8 +472,9 @@ static func _pack_options() -> Array:
 
 static func _suit_options() -> Array:
 	var out := []
-	for id in Session.SUIT_ORDER:
-		out.append([id, str(Session.SUITS[id][0])])
+	for id in PilotLooks.ORDER:
+		if Progress.suit_open(id):
+			out.append([id, str(PilotLooks.suit(id).name)])
 	return out
 
 
@@ -596,7 +597,7 @@ func _roster_row(p: Dictionary) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	var swatch := ColorRect.new()
-	swatch.color = Session.SUITS.get(str(p.get("suit", "kestrel")), Session.SUITS["kestrel"])[1]
+	swatch.color = PilotLooks.suit(str(p.get("suit", "kestrel"))).main
 	swatch.custom_minimum_size = Vector2(22, 22)
 	swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(swatch)
@@ -688,8 +689,11 @@ func _process(delta: float) -> void:
 			continue
 		var s: Dictionary = Session.local_seats[seat]
 		if _pressed(pad, state, JOY_BUTTON_X):
-			var i := Session.SUIT_ORDER.find(str(s.suit))
-			Session.set_seat_value(seat, "suit", Session.SUIT_ORDER[wrapi(i + 1, 0, Session.SUIT_ORDER.size())])
+			var ids := []
+			for o in _suit_options():
+				ids.append(o[0])
+			var i := ids.find(str(s.suit))
+			Session.set_seat_value(seat, "suit", ids[wrapi(i + 1, 0, ids.size())])
 		if _pressed(pad, state, JOY_BUTTON_Y):
 			Session.set_seat_value(seat, "body", 1 - int(s.body))
 		var dir := _direction(pad, state, delta)
@@ -764,8 +768,8 @@ class SeatCard extends PanelContainer:
 
 	func show_seat(seat: Dictionary) -> void:
 		_name.text = str(seat.name)
-		_swatch.color = Session.SUITS.get(str(seat.suit), Session.SUITS["kestrel"])[1]
-		_what.text = "%s, %s" % [Packs.display_name(str(seat.pack)), str(Session.SUITS.get(str(seat.suit), Session.SUITS["kestrel"])[0]).to_lower()]
+		_swatch.color = PilotLooks.suit(str(seat.suit)).main
+		_what.text = "%s, %s" % [Packs.display_name(str(seat.pack)), str(PilotLooks.suit(str(seat.suit)).name).to_lower()]
 
 	static func _glyph_hint(family: String, buttons: Array, text: String) -> Control:
 		var box := HBoxContainer.new()

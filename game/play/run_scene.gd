@@ -385,31 +385,18 @@ func _setup_ghosts() -> void:
 
 
 func _add_ghost(g: Ghost, tag: String) -> void:
-	var p := Pilot.new(-100 - ghosts.size(), tag, g.pack)
-	p.look = g.look.duplicate()
-	g.pose(p, 0.0)
-	var v := PilotView.make(p)
+	var v := PilotView.make_ghost(g.look.duplicate(), g.pack)
 	v.name = "Ghost%d" % ghosts.size()
-	if v.has_method("set_ghost"):
-		v.call("set_ghost", true)
-	else:
-		_fade(v)
+	var p := v.pilot
+	p.id = -100 - ghosts.size()
+	p.name = tag
+	g.pose(p, 0.0)
 	view.add_child(v)
-	v.sync(run, 0.0)
+	v.place(p.x, p.y, p.lane, p.flying, 0.0)
 	v.reset_physics_interpolation()
 	ghosts.append({"ghost": g, "pilot": p, "view": v, "tag": tag})
 	if hud:
 		hud.add_ghost(p, tag, g)
-
-
-## A stand-in ghost look: see-through, no shadows.
-static func _fade(n: Node) -> void:
-	for gi in n.find_children("", "GeometryInstance3D", true, false):
-		var g := gi as GeometryInstance3D
-		g.transparency = GHOST_FADE
-		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	for l in n.find_children("", "Light3D", true, false):
-		(l as Light3D).visible = false
 
 
 func _sync_ghosts(dt: float) -> void:
@@ -419,9 +406,7 @@ func _sync_ghosts(dt: float) -> void:
 		var shown := g.pose(e.pilot, run.time)
 		v.visible = shown
 		if shown:
-			v.sync(run, dt)
-			if not v.has_method("set_ghost"):
-				_fade(v)
+			v.place(e.pilot.x, e.pilot.y, e.pilot.lane, e.pilot.flying, dt)
 
 
 # --- Menus ------------------------------------------------------------------

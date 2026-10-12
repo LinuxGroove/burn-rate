@@ -125,9 +125,9 @@ func set_body(b: int) -> void:
 
 
 ## The pilot's look for a run (see Person.make).
+## This player's look (see [PilotLooks]).
 func look() -> Dictionary:
-	var s := Unlocks.suit(suit())
-	return {"female": body() == 0, "main": s.main, "accent": s.accent, "seed": 4242 + body()}
+	return PilotLooks.make(body(), suit())
 
 
 func gadgets_owned() -> Array:

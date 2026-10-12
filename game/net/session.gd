@@ -66,19 +66,6 @@ const DEFAULT_SETTINGS := {
 const ZONES := ["lab", "servers", "bay", "atrium", "downtown", "halberd"]
 const BOT_SKILLS := ["novice", "average", "expert"]
 
-## Flight suits: id -> [name, main colour, trim colour].
-const SUITS := {
-	"kestrel": ["Kestrel orange", Color(0.95, 0.45, 0.12), Color(0.95, 0.93, 0.88)],
-	"night": ["Night shift", Color(0.12, 0.14, 0.22), Color(0.3, 0.85, 1.0)],
-	"lab": ["Lab white", Color(0.9, 0.92, 0.95), Color(0.2, 0.55, 0.95)],
-	"server": ["Server green", Color(0.1, 0.45, 0.3), Color(0.55, 1.0, 0.5)],
-	"rooftop": ["Rooftop red", Color(0.75, 0.12, 0.15), Color(1.0, 0.8, 0.25)],
-	"violet": ["Pitch violet", Color(0.42, 0.2, 0.75), Color(1.0, 0.55, 0.85)],
-	"gold": ["Board gold", Color(0.85, 0.65, 0.15), Color(0.15, 0.12, 0.1)],
-	"halberd": ["Borrowed Halberd grey", Color(0.38, 0.4, 0.43), Color(0.95, 0.25, 0.2)],
-}
-const SUIT_ORDER := ["kestrel", "night", "lab", "server", "rooftop", "violet", "gold", "halberd"]
-
 ## The game server's boards, for the Leaderboards screen: [board, label].
 ## Distances are metres, course times milliseconds (lowest first).
 const BOARDS := [
@@ -168,8 +155,7 @@ static func actor_id(peer: int, seat: int) -> int:
 
 ## A pilot's look for the views (see Person): body and suit colours.
 static func look_for(suit: String, body: int, seed := 0) -> Dictionary:
-	var s: Array = SUITS.get(suit, SUITS["kestrel"])
-	return {"female": body == 1, "main": s[1], "accent": s[2], "seed": seed}
+	return PilotLooks.make(body, suit, {"seed": seed})
 
 
 # --- Couch seats ----------------------------------------------------------
@@ -196,7 +182,7 @@ func add_local_seat(pad: int) -> int:
 	local_seats.append({
 		"pad": pad, "name": "Pilot %d" % (index + 1),
 		"pack": Packs.ORDER[index % Packs.ORDER.size()],
-		"suit": SUIT_ORDER[(index * 3 + 1) % SUIT_ORDER.size()],
+		"suit": PilotLooks.ORDER[(index * 3 + 1) % PilotLooks.ORDER.size()],
 		"body": index % 2,
 	})
 	LGInput.claim_pad(pad, index)
@@ -279,7 +265,7 @@ func _apply_seats(peer: int, seats: Array) -> void:
 		players[actor_id(peer, i)] = {
 			"name": _unique_name(str(s[0]).strip_edges().left(16)),
 			"pack": pack if Packs.SPECS.has(pack) else "k1",
-			"suit": suit if SUITS.has(suit) else "kestrel",
+			"suit": suit if PilotLooks.SUITS.has(suit) else "kestrel",
 			"body": clampi(int(s[3]), 0, 1),
 			"peer": peer, "seat": i, "bot": false, "ready": peer == 1 or _ready_peers.has(peer),
 		}
@@ -689,7 +675,7 @@ static func make_bots(n: int, people: Array, skill: String, rng: RandomNumberGen
 		var sk: String = skill if skill in BOT_SKILLS else BOT_SKILLS[(i + 1) % BOT_SKILLS.size()]
 		out.append({
 			"id": BOT_ID - i, "name": bot_name, "pack": Packs.ORDER[rng.randi() % Packs.ORDER.size()],
-			"look": look_for(SUIT_ORDER[rng.randi() % SUIT_ORDER.size()], rng.randi() % 2, rng.randi() % 100000),
+			"look": look_for(PilotLooks.ORDER[rng.randi() % PilotLooks.ORDER.size()], rng.randi() % 2, rng.randi() % 100000),
 			"peer": 1, "seat": -1, "bot": true, "skill": sk,
 		})
 	return out

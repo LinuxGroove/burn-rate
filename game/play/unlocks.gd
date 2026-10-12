@@ -17,73 +17,38 @@ const GADGET_ORDER := ["magnet", "hints", "shield", "head_start", "jammer", "reb
 ## Gadgets taken into one run.
 const GADGET_SLOTS := 2
 
-## Suits when the people code has none of its own: id -> name, colours, and
-## the rank that opens it or its price.
-const SUITS := {
-	"kestrel": {"name": "Kestrel", "main": Color(0.12, 0.13, 0.19), "accent": Color(1.0, 0.45, 0.1), "rank": 0},
-	"night_shift": {"name": "Night Shift", "main": Color(0.07, 0.08, 0.1), "accent": Color(0.2, 0.85, 0.9), "rank": 1},
-	"test_range": {"name": "Test Range", "main": Color(0.86, 0.87, 0.9), "accent": Color(1.0, 0.42, 0.08), "price": 400},
-	"halberd": {"name": "Halberd Black", "main": Color(0.05, 0.05, 0.06), "accent": Color(1.0, 0.78, 0.0), "rank": 4},
-	"seed_round": {"name": "Seed Round", "main": Color(0.12, 0.32, 0.2), "accent": Color(0.95, 0.8, 0.3), "price": 800},
-	"unicorn": {"name": "Unicorn", "main": Color(0.3, 0.16, 0.5), "accent": Color(1.0, 0.45, 0.8), "rank": 8},
-	"exit": {"name": "Exit Strategy", "main": Color(0.42, 0.44, 0.48), "accent": Color(0.95, 0.15, 0.2), "price": 1200},
-	"ipo": {"name": "IPO Gold", "main": Color(0.75, 0.6, 0.25), "accent": Color(0.98, 0.96, 0.9), "rank": 12},
-	"neon": {"name": "Neon", "main": Color(0.04, 0.05, 0.1), "accent": Color(0.25, 1.0, 0.6), "price": 2000},
-	"board_room": {"name": "Board Room", "main": Color(0.1, 0.13, 0.3), "accent": Color(0.85, 0.12, 0.25), "rank": 16},
-}
-const SUIT_ORDER := ["kestrel", "night_shift", "test_range", "halberd", "seed_round", "unicorn", "exit", "ipo", "neon", "board_room"]
-const LOOKS_PATH := "res://game/people/looks.gd"
+## Suits that open with a rank rather than credits (the rest cost what
+## [constant PilotLooks.SUITS] says; a cost of 0 is free from the start).
+const SUIT_RANKS := {"night": 2, "moonlight": 6, "chrome": 10}
 
 static var _suits := {}
-static var _suit_order: Array = []
 
 
-## Every suit: id -> {name, main, accent, rank or price}. Uses the people
-## code's presets when it has them (a `presets()` static that returns
-## [{id, name, main, accent}, ...]), opening them by rank and price in turn.
+## Every suit: id -> {name, main, accent, and "rank" or "price"}, in
+## [constant PilotLooks.ORDER].
 static func suits() -> Dictionary:
 	if not _suits.is_empty():
 		return _suits
-	var presets: Array = []
-	if ResourceLoader.exists(LOOKS_PATH):
-		var s: Script = load(LOOKS_PATH)
-		if s and s.can_instantiate() and (s as GDScript).get_script_method_list().any(_is_presets):
-			presets = s.call("presets")
-	if presets.is_empty():
-		_suits = SUITS.duplicate(true)
-		_suit_order = SUIT_ORDER.duplicate()
-		return _suits
-	for i in presets.size():
-		var p: Dictionary = presets[i]
-		var id := str(p.get("id", "suit_%d" % i))
-		var e := {"name": str(p.get("name", id.capitalize())), "main": p.get("main", Color.DIM_GRAY), "accent": p.get("accent", BurnTheme.ORANGE)}
-		# Free first, then a rank or a price in turn, rising.
-		if i == 0:
+	for id in PilotLooks.ORDER:
+		var p: Dictionary = PilotLooks.suit(id)
+		var e := {"name": str(p.name), "main": p.main, "accent": p.accent}
+		if SUIT_RANKS.has(id):
+			e["rank"] = int(SUIT_RANKS[id])
+		elif int(p.cost) <= 0:
 			e["rank"] = 0
-		elif i % 2 == 1:
-			e["rank"] = 1 + i * 2
 		else:
-			e["price"] = 300 * i
-		for k in p:
-			if not e.has(k):
-				e[k] = p[k]
+			e["price"] = int(p.cost)
 		_suits[id] = e
-		_suit_order.append(id)
 	return _suits
 
 
-static func _is_presets(m: Dictionary) -> bool:
-	return str(m.name) == "presets"
-
-
 static func suit_order() -> Array:
-	suits()
-	return _suit_order
+	return PilotLooks.ORDER
 
 
 static func suit(id: String) -> Dictionary:
 	var all := suits()
-	return all.get(id, all[suit_order()[0]])
+	return all.get(id, all[PilotLooks.ORDER[0]])
 
 
 static func gadget(id: String) -> Dictionary:

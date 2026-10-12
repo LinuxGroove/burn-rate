@@ -152,7 +152,7 @@ func standings() -> Array:
 	for p in net.run.pilots:
 		out.append({
 			"id": p.id, "name": p.name, "wins": int(wins.get(p.id, 0)), "place": p.place,
-			"color": p.look.get("main", Packs.spec(p.pack).color), "you": p.id in net._own, "bot": p.bot,
+			"color": PilotLooks.resolve(p.look).main if not p.look.is_empty() else Packs.spec(p.pack).color, "you": p.id in net._own, "bot": p.bot,
 		})
 	out.sort_custom(_better)
 	return out
