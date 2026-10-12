@@ -39,9 +39,10 @@ func _ready() -> void:
 	for g in GROUPS:
 		if only == "" or only == g:
 			await call("_" + g, root)
+			_lines.append("")
 	if only == "":
 		var f := FileAccess.open(root.path_join("README.md"), FileAccess.WRITE)
-		f.store_string("\n".join(_lines) + "\n")
+		f.store_string("\n".join(_lines).strip_edges() + "\n")
 	_clear()
 	get_tree().quit()
 
@@ -133,7 +134,8 @@ func _fly(opts: Dictionary, at: float, root: String, folder: String, file: Strin
 		img.resize(SIZE.x, SIZE.y, Image.INTERPOLATE_LANCZOS)
 	img.save_jpg(root.path_join(folder).path_join(file + ".jpg"), 0.88)
 	_lines.append("- [%s](%s/%s.jpg)" % [caption, folder, file])
-	print("saved %s/%s at %d m (seed %d)" % [folder, file, int(_scene.camera.target_x()), cfg.seed])
+	print("saved %s/%s at %d m (seed %d), %d draws, %d objects" % [folder, file, int(_scene.camera.target_x()), cfg.seed,
+		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)])
 
 
 func _clear() -> void:
