@@ -6,6 +6,8 @@ extends Node
 func _ready() -> void:
 	LGSettings.register_defaults(GameConfig.SETTING_DEFAULTS)
 	LGInput.register_actions(GameConfig.ACTIONS, 0.25)
+	LGTheme.apply(get_tree().root, 22)
+	BurnTheme.apply(get_tree().root, 22)
 	var args := OS.get_cmdline_user_args()
 	var out := "/tmp/shot.png"
 	var at := 8.0
