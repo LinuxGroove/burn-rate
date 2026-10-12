@@ -36,6 +36,10 @@ func test_looks_resolve(t) -> void:
 			t.check(look.has("main") and look.has("female"), "%s on body %d resolves" % [id, body])
 	t.check(PilotLooks.resolve(PilotLooks.random(5)).has("main"), "a random look resolves")
 	t.check(PilotLooks.resolve({"suit": "nonsense"}).has("main"), "an unknown suit falls back")
+	for job in ["scientist", "tech", "exec", "guard"]:
+		var p := Person.make(job, false, 3)
+		t.check(p.job != "scientist" or job == "scientist", "staff called %s get their own look" % job)
+		p.free()
 
 
 func test_every_hazard_draws(t) -> void:

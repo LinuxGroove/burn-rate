@@ -73,12 +73,19 @@ var _extras: Array[MeshInstance3D] = []
 var _dizzy: Node3D
 
 
+## Other names the run uses for jobs.
+const JOB_NAMES := {"tech": "engineer"}
+
+
 ## A person. `look` can set "skin", "hair" and "style" (indexes) and, for
-## pilots, "main" and "accent" colours; anything missing comes from `seed`.
+## pilots, "main", "accent" and "trim" colours and "gear" and "lens"; anything
+## missing comes from `seed`. `p_job` is a key of [constant JOBS] (or of
+## [constant JOB_NAMES]).
 static func make(p_job := "scientist", p_female := false, seed := 0, look := {}) -> Person:
 	var c := Person.new()
 	c.name = "Person"
-	c.job = p_job if JOBS.has(p_job) else "scientist"
+	var j: String = JOB_NAMES.get(p_job, p_job)
+	c.job = j if JOBS.has(j) else "scientist"
 	c.female = p_female
 	c._build(seed, look)
 	return c
