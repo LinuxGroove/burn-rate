@@ -185,6 +185,7 @@ func _suits() -> void:
 		var open := Progress.suit_open(id)
 		var state := "WEARING" if id == Progress.suit() else ("READY" if open else (("%s CR" % GameConfig.grouped(int(s.price))) if s.has("price") else "RANK %d" % int(s.get("rank", 0))))
 		var b := _tile("%s\n%s" % [str(s.name).to_upper(), state], _pick_suit.bind(id), 152, 80)
+		b.add_theme_font_override("font", BurnTheme.narrow())
 		b.add_theme_font_size_override("font_size", 12)
 		var sw := SuitSwatch.new()
 		sw.main = s.main

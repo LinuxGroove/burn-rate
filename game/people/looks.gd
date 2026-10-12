@@ -20,7 +20,7 @@ const BODIES := [
 ## boots), the gear on the face ("goggles" or "visor") and its lens colour,
 ## and a suggested price in credits (0: from the start).
 const SUITS := {
-	"kestrel": {"name": "Kestrel Test Suit", "main": Color(0.13, 0.14, 0.18), "accent": Color(1.0, 0.45, 0.1), "trim": Color(0.06, 0.06, 0.07), "gear": "goggles", "lens": Color(1.0, 0.6, 0.2), "cost": 0},
+	"kestrel": {"name": "Kestrel Test", "main": Color(0.13, 0.14, 0.18), "accent": Color(1.0, 0.45, 0.1), "trim": Color(0.06, 0.06, 0.07), "gear": "goggles", "lens": Color(1.0, 0.6, 0.2), "cost": 0},
 	"night": {"name": "Night Shift", "main": Color(0.05, 0.055, 0.07), "accent": Color(0.15, 0.85, 1.0), "trim": Color(0.12, 0.13, 0.15), "gear": "visor", "lens": Color(0.2, 0.85, 1.0), "cost": 400},
 	"flare": {"name": "Flare", "main": Color(0.86, 0.87, 0.9), "accent": Color(0.9, 0.12, 0.12), "trim": Color(0.1, 0.1, 0.11), "gear": "goggles", "lens": Color(0.95, 0.3, 0.2), "cost": 600},
 	"volt": {"name": "Volt", "main": Color(0.24, 0.11, 0.42), "accent": Color(1.0, 0.85, 0.1), "trim": Color(0.08, 0.06, 0.1), "gear": "visor", "lens": Color(1.0, 0.85, 0.2), "cost": 800},

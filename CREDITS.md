@@ -16,8 +16,11 @@ Made by Drew, Kaden, and Ken VanDine, the LinuxGroove team.
 
 Made for Burn Rate, all CC0 like the rest:
 
-- `assets/models/jetpack/`: the prototype jetpack, modelled by a script
-  (`tools/jetpack.py`) from the MegaKit's trim sheets.
+- `assets/models/jetpack/`: the six prototype jetpacks, modelled by a
+  script (`tools/jetpack.py`) from the MegaKit's trim sheets.
+- `assets/models/hazards/` and `assets/models/gear/`: the zapper nodes,
+  laser emitters, seekers, goggles and visors, modelled by the Blender
+  scripts in `tools/blender/`.
 - The beams, flames and glows are shaders in `game/view/fx/`.
 - The icon is drawn by `tools/make_icon.py`.
 

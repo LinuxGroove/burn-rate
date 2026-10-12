@@ -32,8 +32,8 @@ Run the script check and the tests before every commit, and `sim_check` with the
 |---|---|
 | `game/game_config.gd` | `GAME_ID`, `PROTOCOL`, player limits, `QUICK_MATCH_SIZE`, setting defaults (pace, lanes, comfort, detail), input map |
 | `game/run/` | The run with no nodes: `Run`, `Pilot`, `RunInput`, `RoomGen`, `Patterns` (what goes in a room), `Zones`, hazards, pick-ups, `Packs` (the six jetpacks), `Course`/`Courses`, `Autopilot` |
-| `game/view/` | `RunView` (draws a `Run`), `RoomView` (each zone's rooms), `CityRoofs`, `CityBackdrop` (the city at night), `HazardView`, `PilotView`, `RunCamera`, `Look` (each zone's light and mood), `Kit` (models by name, batching), `fx/` shaders |
-| `game/people/` | `Person`: Universal Base Characters with hair, outfits drawn by a shader, and the animation libraries |
+| `game/view/` | `RunView` (draws a `Run`), `RoomView` (each zone's rooms), `CityRoofs`, `CityBackdrop` (the city at night), `HazardView`, `PilotView` (a pilot in a suit with a pack on), `PackView` (a prototype jetpack: flames, glow and moving parts), `RunCamera`, `Look` (each zone's light and mood), `Kit` (models by name, batching), `fx/` (`Fx`: pooled GPU particles, and the shaders) |
+| `game/people/` | `Person` (Universal Base Characters with hair, outfits drawn by a shader, and the animation libraries) and `PilotLooks` (the bodies and flight suits, the one list the Hangar, the lobby and other devices' pilots use) |
 | `game/play/` | `RunScene` (steps the run with this device's controls and bots, and hands events to the view, HUD and sound), `Flights` (each mode's config, the Daily seed), `Missions`, `Unlocks` (ranks, suits, gadgets), `Ghosts`, `Boards` |
 | `game/ui/` | Title (a bot flies behind it), HUD, pause menu, results, Hangar, course picker, lobby and `PartyBoard`, settings, how to play, `BurnTheme` |
 | `game/audio/` | `GameAudio` (menu sounds, music and its Burn layers, stingers), `RunAudio` (the run's sounds), `SfxVoices` (the voice budget) |
@@ -45,7 +45,7 @@ Run the script check and the tests before every commit, and `sim_check` with the
 | `addons/linuxgroove/` | Shared LinuxGroove add-on (settings, input and seats, theme, LAN, online, names, play tests) |
 | `addons/com.heroiclabs.nakama/` | Vendored Nakama client with a local patch (see its `VENDORED.md`) |
 | `assets/people/` | The base characters, their hair and the animation libraries |
-| `assets/models/` | Models made for the game (the jetpack, from `tools/jetpack.py`) |
+| `assets/models/` | Models made for the game: the six prototypes (`jetpack/jetpack_k1`..`k6`, from `tools/jetpack.py`), the zapper, laser and seeker (`hazards/`) and the goggles and visors (`gear/`), from the Blender scripts in `tools/blender/` |
 | `assets/audio/` | Sounds and music synthesized by `tools/sfx/make_sfx.py`, and Kenney's menu sounds (its `CREDITS.md`) |
 | `tests/` | `run_tests.gd` runs every `*_tests.gd` here; each `test_*` method gets the runner as `t` and calls `t.check(ok, "what")` |
 | `docs/screenshots/<group>/` | Every zone, the doors between them, party races and low detail, with a README index, made by `tools/screenshot.tscn -- --all=docs/screenshots` |
