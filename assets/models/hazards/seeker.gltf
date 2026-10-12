@@ -1,0 +1,482 @@
+{
+ "asset": {
+  "generator": "Khronos glTF Blender I/O v5.2.40",
+  "version": "2.0"
+ },
+ "extensionsUsed": [
+  "KHR_materials_emissive_strength"
+ ],
+ "scene": 0,
+ "scenes": [
+  {
+   "name": "Scene",
+   "nodes": [
+    1
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Exhaust",
+   "translation": [
+    0.4000000059604645,
+    0,
+    0
+   ]
+  },
+  {
+   "children": [
+    0
+   ],
+   "mesh": 0,
+   "name": "Seeker"
+  }
+ ],
+ "materials": [
+  {
+   "doubleSided": true,
+   "name": "MI_Trim_02_Red",
+   "normalTexture": {
+    "index": 0
+   },
+   "pbrMetallicRoughness": {
+    "baseColorTexture": {
+     "index": 1
+    },
+    "metallicRoughnessTexture": {
+     "index": 2
+    }
+   }
+  },
+  {
+   "doubleSided": true,
+   "emissiveFactor": [
+    1,
+    0.41999998688697815,
+    0.07999999821186066
+   ],
+   "extensions": {
+    "KHR_materials_emissive_strength": {
+     "emissiveStrength": 4
+    }
+   },
+   "name": "M_Jet_Glow",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     1,
+     0.44999998807907104,
+     0.10000000149011612,
+     1
+    ],
+    "metallicFactor": 0,
+    "roughnessFactor": 0.5
+   }
+  },
+  {
+   "doubleSided": true,
+   "name": "MI_Trim_01",
+   "normalTexture": {
+    "index": 3
+   },
+   "pbrMetallicRoughness": {
+    "baseColorTexture": {
+     "index": 4
+    },
+    "metallicRoughnessTexture": {
+     "index": 5
+    }
+   }
+  },
+  {
+   "doubleSided": true,
+   "name": "MI_Trim_03_Dark",
+   "normalTexture": {
+    "index": 6
+   },
+   "pbrMetallicRoughness": {
+    "baseColorTexture": {
+     "index": 7
+    },
+    "metallicRoughnessTexture": {
+     "index": 8
+    }
+   }
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Seeker",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1,
+      "TEXCOORD_0": 2
+     },
+     "indices": 3,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 4,
+      "NORMAL": 5,
+      "TEXCOORD_0": 6
+     },
+     "indices": 7,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 8,
+      "NORMAL": 9,
+      "TEXCOORD_0": 10
+     },
+     "indices": 11,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 12,
+      "NORMAL": 13,
+      "TEXCOORD_0": 14
+     },
+     "indices": 15,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "textures": [
+  {
+   "sampler": 0,
+   "source": 0
+  },
+  {
+   "sampler": 0,
+   "source": 1
+  },
+  {
+   "sampler": 0,
+   "source": 2
+  },
+  {
+   "sampler": 0,
+   "source": 3
+  },
+  {
+   "sampler": 0,
+   "source": 4
+  },
+  {
+   "sampler": 0,
+   "source": 5
+  },
+  {
+   "sampler": 0,
+   "source": 6
+  },
+  {
+   "sampler": 0,
+   "source": 7
+  },
+  {
+   "sampler": 0,
+   "source": 8
+  }
+ ],
+ "images": [
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_02_Normal",
+   "uri": "../../../addons/quaternius/materials/T_Trim_02_Normal.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_02_BaseColor_Red",
+   "uri": "../../../addons/quaternius/materials/T_Trim_02_BaseColor_Red.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_02_ORM",
+   "uri": "../../../addons/quaternius/materials/T_Trim_02_ORM.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_01_Normal",
+   "uri": "../../../addons/quaternius/materials/T_Trim_01_Normal.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_01_BaseColor",
+   "uri": "../../../addons/quaternius/materials/T_Trim_01_BaseColor.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_01_ORM",
+   "uri": "../../../addons/quaternius/materials/T_Trim_01_ORM.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_Normal",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_Normal.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_Cables",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_Cables.png"
+  },
+  {
+   "mimeType": "image/png",
+   "name": "T_Trim_03_ORM",
+   "uri": "../../../addons/quaternius/materials/T_Trim_03_ORM.png"
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 580,
+   "max": [
+    0.27000004053115845,
+    0.1691700965166092,
+    0.1691700965166092
+   ],
+   "min": [
+    -0.5699999928474426,
+    -0.1691700965166092,
+    -0.1691700965166092
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 580,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5126,
+   "count": 580,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5123,
+   "count": 1848,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 322,
+   "max": [
+    0.3920000195503235,
+    0.12099999934434891,
+    0.12099999934434891
+   ],
+   "min": [
+    -0.33500000834465027,
+    -0.12099999934434891,
+    -0.12099999934434891
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5126,
+   "count": 322,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 322,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5123,
+   "count": 1620,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5126,
+   "count": 198,
+   "max": [
+    0.1600000262260437,
+    0.12000000476837158,
+    0.12000001221895218
+   ],
+   "min": [
+    -0.30000001192092896,
+    -0.12000000476837158,
+    -0.12000000476837158
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 198,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 198,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5123,
+   "count": 852,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 12,
+   "componentType": 5126,
+   "count": 976,
+   "max": [
+    0.3799999952316284,
+    0.12700000405311584,
+    0.12700000405311584
+   ],
+   "min": [
+    -0.2850000262260437,
+    -0.12700000405311584,
+    -0.12700001895427704
+   ],
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 13,
+   "componentType": 5126,
+   "count": 976,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 14,
+   "componentType": 5126,
+   "count": 976,
+   "type": "VEC2"
+  },
+  {
+   "bufferView": 15,
+   "componentType": 5123,
+   "count": 2784,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteLength": 6960,
+   "byteOffset": 0,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 6960,
+   "byteOffset": 6960,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 4640,
+   "byteOffset": 13920,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3696,
+   "byteOffset": 18560,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3864,
+   "byteOffset": 22256,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3864,
+   "byteOffset": 26120,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 2576,
+   "byteOffset": 29984,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 3240,
+   "byteOffset": 32560,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteLength": 2376,
+   "byteOffset": 35800,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 2376,
+   "byteOffset": 38176,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1584,
+   "byteOffset": 40552,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 1704,
+   "byteOffset": 42136,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteLength": 11712,
+   "byteOffset": 43840,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 11712,
+   "byteOffset": 55552,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 7808,
+   "byteOffset": 67264,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteLength": 5568,
+   "byteOffset": 75072,
+   "target": 34963
+  }
+ ],
+ "samplers": [
+  {
+   "magFilter": 9729,
+   "minFilter": 9987
+  }
+ ],
+ "buffers": [
+  {
+   "byteLength": 80640,
+   "uri": "seeker.bin"
+  }
+ ]
+}

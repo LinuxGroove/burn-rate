@@ -10,6 +10,8 @@ uniform vec4 color : source_color = vec4(0.35, 0.8, 1.0, 1.0);
 uniform float strength = 2.5;
 // How much the core crawls along the beam (0 for a plain glow).
 uniform float crawl = 1.0;
+// The glow at the cylinder's edges (0 for a soft halo with no hard rim).
+uniform float edge = 0.35;
 
 // Dimmed when it's not in your lane, faded while charging.
 instance uniform float dim = 0.0;
@@ -34,7 +36,7 @@ void fragment() {
 	float along = UV.y * 9.0;
 	float wiggle = noise(along * 2.0 + t + seed * 13.0) * crawl;
 	float flick = mix(0.75 + 0.25 * noise(t * 2.3 + seed * 7.0), 1.0, steady);
-	float glow = (0.35 + core * 1.4 + wiggle * core * 0.8) * flick;
+	float glow = (edge + core * 1.4 + wiggle * core * 0.8) * flick;
 	vec3 c = mix(color.rgb, vec3(1.0), core * 0.55);
 	ALBEDO = c * glow * strength * power * (1.0 - dim * 0.7);
 }
