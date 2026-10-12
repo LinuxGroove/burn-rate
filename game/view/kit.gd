@@ -165,6 +165,236 @@ static func flat(color: Color, roughness := 0.8, emission := Color.BLACK, energy
 	return _materials[key]
 
 
+static var _parts := {}
+static var _swapped := {}
+
+
+## A model's meshes and where they sit in it, cached: [[Mesh, Transform3D], ...].
+## Cheaper than [method model] when only the look is needed (see [Batch]).
+static func parts(name: String) -> Array:
+	if not _parts.has(name):
+		var ps := scene(name)
+		var out := []
+		if ps != null:
+			var n: Node3D = ps.instantiate()
+			_strip_collision(n)
+			for e in meshes_of(n):
+				var mi: MeshInstance3D = e[0]
+				var mesh: Mesh = mi.mesh
+				# Surface overrides (rare in the kits) become the mesh's own.
+				for s in mesh.get_surface_count():
+					if mi.get_surface_override_material(s) != null:
+						mesh = mesh.duplicate()
+						for t in mesh.get_surface_count():
+							var o := mi.get_surface_override_material(t)
+							if o:
+								mesh.surface_set_material(t, o)
+						break
+				out.append([mesh, e[1]])
+			n.free()
+		_parts[name] = out
+	return _parts[name]
+
+
+static var _sizes := {}
+
+
+## The size of a model's bounds (from [method parts]), cached.
+static func aabb_size(name: String) -> Vector3:
+	if not _sizes.has(name):
+		var box := AABB()
+		var first := true
+		for p in parts(name):
+			var b: AABB = p[1] * (p[0] as Mesh).get_aabb()
+			box = b if first else box.merge(b)
+			first = false
+		_sizes[name] = box.size
+	return _sizes[name]
+
+
+## A material's name: the kit's file name ("MI_Trim_01") or its own name.
+static func material_name(m: Material) -> String:
+	if m == null:
+		return ""
+	if m.resource_path != "":
+		return m.resource_path.get_file().get_basename()
+	return m.resource_name
+
+
+## The mesh with the materials named in `swap` (name -> Material) swapped,
+## cached under `key` (one key per set of swaps, such as a zone's look).
+static func swapped(mesh: Mesh, key: String, swap: Dictionary) -> Mesh:
+	if swap.is_empty() or not mesh is ArrayMesh:
+		return mesh
+	var k := [mesh.get_instance_id(), key]
+	if _swapped.has(k):
+		return _swapped[k]
+	var out := mesh
+	for s in mesh.get_surface_count():
+		var n := material_name(mesh.surface_get_material(s))
+		if swap.has(n):
+			if out == mesh:
+				out = mesh.duplicate()
+			out.surface_set_material(s, swap[n])
+	_swapped[k] = out
+	return out
+
+
+## `c` scaled by `k` with its alpha left at 1. Neon reads a vertex colour's
+## alpha below 1 as "blink" (see city_neon.gdshader), and `c * k` would
+## scale the alpha too.
+static func dimmed(c: Color, k: float) -> Color:
+	return Color(c.r * k, c.g * k, c.b * k, 1.0)
+
+
+## Box sides in the order Shapes.box masks them: +x, -x, +y, -y, +z, -z.
+const DIRS := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+
+## Collects kit pieces and builds each distinct mesh as one MultiMesh, so a
+## room's dozens of tiles and props are a handful of draw calls and no
+## scene instancing:
+##   var b := Kit.Batch.new()
+##   b.add("Platform_Simple", Transform3D(Basis(), Vector3(2, 0, 0)))
+##   b.build(room)
+class Batch:
+	## Material swaps applied to every piece (see [method Kit.swapped]).
+	var swap := {}
+	var swap_key := ""
+	var _xf := {}
+	var _meshes := {}
+
+	func add(name: String, xf: Transform3D) -> void:
+		for p in Kit.parts(name):
+			var m: Mesh = p[0]
+			if not swap.is_empty():
+				m = Kit.swapped(m, swap_key, swap)
+			add_mesh(m, xf * p[1])
+
+	## A piece at a spot, turned by `yaw` (radians), scaled evenly.
+	func put(name: String, pos: Vector3, yaw := 0.0, scale := 1.0) -> void:
+		add(name, Transform3D(Basis(Vector3.UP, yaw).scaled(Vector3.ONE * scale), pos))
+
+	func add_mesh(m: Mesh, xf: Transform3D) -> void:
+		var id := m.get_instance_id()
+		if not _xf.has(id):
+			_xf[id] = []
+			_meshes[id] = m
+		_xf[id].append(xf)
+
+	func is_empty() -> bool:
+		return _xf.is_empty()
+
+	## Adds the batched pieces under `parent`; returns how many draws it made.
+	func build(parent: Node3D, shadows := false) -> int:
+		var n := 0
+		for id in _xf:
+			var list: Array = _xf[id]
+			var mesh: Mesh = _meshes[id]
+			var gi: GeometryInstance3D
+			if list.size() == 1:
+				var mi := MeshInstance3D.new()
+				mi.mesh = mesh
+				mi.transform = list[0]
+				gi = mi
+			else:
+				var mm := MultiMesh.new()
+				mm.transform_format = MultiMesh.TRANSFORM_3D
+				mm.mesh = mesh
+				mm.instance_count = list.size()
+				for i in list.size():
+					mm.set_instance_transform(i, list[i])
+				var mmi := MultiMeshInstance3D.new()
+				mmi.multimesh = mm
+				gi = mmi
+			gi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			parent.add_child(gi)
+			n += 1
+		_xf.clear()
+		_meshes.clear()
+		return n
+
+
+## Boxes and flat quads in one mesh with vertex colours, for the many small
+## glowing strips, panels and blocks the tower and the city are dressed in.
+##   var s := Kit.Shapes.new()
+##   s.box(Vector3(0, 1, 0), Vector3(4, 0.05, 0.05), Color.CYAN)
+##   room.add_child(s.instance(material))
+class Shapes:
+	var _v := PackedVector3Array()
+	var _nrm := PackedVector3Array()
+	var _uv := PackedVector2Array()
+	var _col := PackedColorArray()
+	var _idx := PackedInt32Array()
+
+	## A box centred at `c` with sides `size`, turned by `basis`; `faces` is
+	## a mask of the sides to draw (+x, -x, +y, -y, +z, -z). UVs run in metres.
+	func box(c: Vector3, size: Vector3, color: Color, basis := Basis(), faces := 63) -> void:
+		var h := size * 0.5
+		for f in 6:
+			if not faces & (1 << f):
+				continue
+			var nrm: Vector3 = Kit.DIRS[f]
+			var u: Vector3 = Vector3.UP if absf(nrm.y) < 0.5 else Vector3.BACK
+			var v := nrm.cross(u)
+			var du := absf(u.dot(h))
+			var dv := absf(v.dot(h))
+			var o := nrm * absf(nrm.dot(h))
+			_quad(c, basis, o, v * dv, u * du, basis * nrm, color, Vector2(dv * 2.0, du * 2.0))
+
+	## A flat panel facing `normal`, `w` wide and `h` tall (UV 0–1 across it).
+	func panel(c: Vector3, w: float, h: float, color: Color, basis := Basis()) -> void:
+		_quad(c, basis, Vector3.ZERO, Vector3.RIGHT * w * 0.5, Vector3.UP * h * 0.5, basis * Vector3.BACK, color, Vector2(1, 1))
+
+	func _quad(c: Vector3, basis: Basis, o: Vector3, a: Vector3, b: Vector3, nrm: Vector3, color: Color, ext: Vector2) -> void:
+		var base := _v.size()
+		_v.append(c + basis * (o - a - b))
+		_v.append(c + basis * (o + a - b))
+		_v.append(c + basis * (o + a + b))
+		_v.append(c + basis * (o - a + b))
+		_uv.append(Vector2(0, ext.y))
+		_uv.append(Vector2(ext.x, ext.y))
+		_uv.append(Vector2(ext.x, 0))
+		_uv.append(Vector2(0, 0))
+		for i in 4:
+			_nrm.append(nrm)
+			_col.append(color)
+		# Godot's front faces wind clockwise seen from the front.
+		if (a.cross(b)).dot(basis.inverse() * nrm) > 0.0:
+			_idx.append_array([base, base + 2, base + 1, base, base + 3, base + 2])
+		else:
+			_idx.append_array([base, base + 1, base + 2, base, base + 2, base + 3])
+
+	func is_empty() -> bool:
+		return _v.is_empty()
+
+	## Adds what's been drawn to `mesh` as one more surface.
+	func add_to(mesh: ArrayMesh, material: Material = null) -> void:
+		if is_empty():
+			return
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = _v
+		arrays[Mesh.ARRAY_NORMAL] = _nrm
+		arrays[Mesh.ARRAY_TEX_UV] = _uv
+		arrays[Mesh.ARRAY_COLOR] = _col
+		arrays[Mesh.ARRAY_INDEX] = _idx
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		if material:
+			mesh.surface_set_material(mesh.get_surface_count() - 1, material)
+
+	func mesh() -> ArrayMesh:
+		var m := ArrayMesh.new()
+		add_to(m)
+		return m
+
+	func instance(material: Material) -> MeshInstance3D:
+		var mi := MeshInstance3D.new()
+		mi.mesh = mesh()
+		mi.material_override = material
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		return mi
+
+
 ## Every mesh under `root` in one list of [mesh, transform relative to root].
 static func meshes_of(root: Node3D) -> Array:
 	var out := []
