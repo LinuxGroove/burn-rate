@@ -119,6 +119,7 @@ func start(p_config: Dictionary) -> void:
 		_layer.name = "Menus"
 		_layer.layer = 20
 		add_child(_layer)
+		LGFocusPause.watch(self, _pause_from_focus)
 		_setup_ghosts()
 	if bool(config.get("net", false)):
 		net = RunNet.new()
@@ -437,6 +438,13 @@ func open_pause() -> void:
 	pause_menu.scene = self
 	_layer.add_child(pause_menu)
 	LGPlaytest.event("paused_run", {"distance": int(run.distance())})
+
+
+## Opens the pause menu when the window loses focus, unless the results
+## are up.
+func _pause_from_focus() -> void:
+	if not (results and is_instance_valid(results)):
+		open_pause()
 
 
 ## Called by the pause menu as it closes.
