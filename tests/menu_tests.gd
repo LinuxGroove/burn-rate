@@ -237,10 +237,15 @@ func test_focus_pause(t) -> void:
 	await t.get_tree().create_timer(grace, true, false, true).timeout
 	t.check(scene.paused and scene.pause_menu != null, "losing focus pauses the run")
 	t.check(probe.stream_paused and LGAudio.is_game_paused(), "the pause menu holds the music and the run's sounds")
+	LGAudio.play_music(_silence())
+	var track: AudioStreamPlayer = LGAudio._current_music
+	t.check(track.stream_paused, "music that starts behind the pause menu waits for Fly on")
 	scene.pause_menu.close()
 	await _frames(t, 1)
 	t.check(not scene.paused and scene.pause_menu == null, "Fly on flies on after losing focus")
 	t.check(probe.playing and not LGAudio.is_game_paused(), "Fly on picks the sound up where it stopped")
+	t.check(track.playing, "Fly on starts the music that waited")
+	LGAudio.stop_music()
 	probe.queue_free()
 	LGSettings.set_value("video", "focus_pause", false, false)
 	t.check(not watcher.pause_now() and scene.pause_menu == null, "Pause when switching away can be turned off")
