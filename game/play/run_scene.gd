@@ -432,6 +432,7 @@ func open_pause() -> void:
 	if backdrop or (pause_menu and is_instance_valid(pause_menu)):
 		return
 	paused = true
+	LGAudio.pause_game(true)
 	if hud:
 		hud.set_paused(true)
 	pause_menu = PauseMenu.new()
@@ -451,6 +452,7 @@ func _pause_from_focus() -> void:
 func on_pause_closed() -> void:
 	pause_menu = null
 	paused = false
+	LGAudio.pause_game(false)
 	if hud:
 		hud.set_paused(false)
 	for id in _was_fly:
