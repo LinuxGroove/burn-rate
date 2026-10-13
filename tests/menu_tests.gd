@@ -208,9 +208,10 @@ func test_hud_through_a_run(t) -> void:
 		await _free(t, scene)
 
 
-## The window losing focus opens the pause menu (LGFocusPause), unless focus
-## comes straight back, the setting is off or the on-screen keyboard is up.
-## The run pauses itself; the tree carries on.
+## The window losing focus opens the pause menu (LGFocusPause), which holds
+## the game's sound until Fly on, unless focus comes straight back, the
+## setting is off or the on-screen keyboard is up. The run pauses itself; the
+## tree carries on.
 func test_focus_pause(t) -> void:
 	_fresh()
 	var scene := await _scene(t, Flights.endless())
@@ -220,6 +221,11 @@ func test_focus_pause(t) -> void:
 	if watcher == null:
 		await _free(t, scene)
 		return
+	# A sound that plays on through a pause, as the music does.
+	var probe := AudioStreamPlayer.new()
+	probe.stream = _silence()
+	t.add_child(probe)
+	probe.play()
 	# The watcher counts real milliseconds, so wait in real time.
 	var grace := LGFocusPause.GRACE_MSEC / 1000.0 + 0.15
 	watcher.focus_lost()
@@ -230,9 +236,12 @@ func test_focus_pause(t) -> void:
 	watcher.focus_lost()
 	await t.get_tree().create_timer(grace, true, false, true).timeout
 	t.check(scene.paused and scene.pause_menu != null, "losing focus pauses the run")
+	t.check(probe.stream_paused and LGAudio.is_game_paused(), "the pause menu holds the music and the run's sounds")
 	scene.pause_menu.close()
 	await _frames(t, 1)
 	t.check(not scene.paused and scene.pause_menu == null, "Fly on flies on after losing focus")
+	t.check(probe.playing and not LGAudio.is_game_paused(), "Fly on picks the sound up where it stopped")
+	probe.queue_free()
 	LGSettings.set_value("video", "focus_pause", false, false)
 	t.check(not watcher.pause_now() and scene.pause_menu == null, "Pause when switching away can be turned off")
 	LGSettings.set_value("video", "focus_pause", true, false)
@@ -277,3 +286,18 @@ func test_settings_and_howto_build(t) -> void:
 	t.check("First flight" in bs, "how to play offers the first flight")
 	h.close()
 	await _free(t, h)
+
+
+## A second of silence on a loop. Not an AudioStreamGenerator: its playback
+## points at the stream without holding it, so freeing the player can leave
+## the mixer reading freed memory, and a release export hangs at exit.
+func _silence() -> AudioStreamWAV:
+	var data := PackedByteArray()
+	data.resize(44100 * 2)
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = 44100
+	wav.data = data
+	wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	wav.loop_end = 44100
+	return wav
