@@ -208,6 +208,42 @@ func test_hud_through_a_run(t) -> void:
 		await _free(t, scene)
 
 
+## The window losing focus opens the pause menu (LGFocusPause), unless focus
+## comes straight back, the setting is off or the on-screen keyboard is up.
+## The run pauses itself; the tree carries on.
+func test_focus_pause(t) -> void:
+	_fresh()
+	var scene := await _scene(t, Flights.endless())
+	_fly(scene, 2.0)
+	var watcher: LGFocusPause = scene.get_node_or_null("FocusPause")
+	t.check(watcher != null, "the run watches for the window losing focus")
+	if watcher == null:
+		await _free(t, scene)
+		return
+	# The watcher counts real milliseconds, so wait in real time.
+	var grace := LGFocusPause.GRACE_MSEC / 1000.0 + 0.15
+	watcher.focus_lost()
+	await _frames(t, 1)
+	watcher.focus_back()
+	await t.get_tree().create_timer(grace, true, false, true).timeout
+	t.check(scene.pause_menu == null, "focus coming straight back doesn't open the pause menu")
+	watcher.focus_lost()
+	await t.get_tree().create_timer(grace, true, false, true).timeout
+	t.check(scene.paused and scene.pause_menu != null, "losing focus pauses the run")
+	scene.pause_menu.close()
+	await _frames(t, 1)
+	t.check(not scene.paused and scene.pause_menu == null, "Fly on flies on after losing focus")
+	LGSettings.set_value("video", "focus_pause", false, false)
+	t.check(not watcher.pause_now() and scene.pause_menu == null, "Pause when switching away can be turned off")
+	LGSettings.set_value("video", "focus_pause", true, false)
+	var field := LineEdit.new()
+	t.add_child(field)
+	OnScreenKeyboard.open(field)
+	t.check(not watcher.pause_now() and scene.pause_menu == null, "losing focus leaves the on-screen keyboard alone")
+	field.queue_free()
+	await _free(t, scene)
+
+
 func test_backdrop_has_no_menus(t) -> void:
 	var scene: RunScene = load("res://game/play/run_scene.tscn").instantiate()
 	scene.config = Flights.backdrop()
@@ -219,6 +255,7 @@ func test_backdrop_has_no_menus(t) -> void:
 	t.check(scene.run.time > 5.0 or scene.run.time < 2.0, "the backdrop keeps flying (and starts again when it ends)")
 	scene.open_pause()
 	t.check(scene.pause_menu == null, "the backdrop never pauses")
+	t.check(scene.get_node_or_null("FocusPause") == null, "the backdrop doesn't pause when the window loses focus")
 	await _free(t, scene)
 
 
